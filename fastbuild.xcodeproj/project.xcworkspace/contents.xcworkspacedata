@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:FastBuildSimple.xcodeproj">
+      location = "self:/Users/fsociety/Desktop/FastBuildSimple/fastbuild.xcodeproj">
    </FileRef>
 </Workspace>
