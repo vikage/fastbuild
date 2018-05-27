@@ -23,7 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F2693FA820BA925A00E4D79B /* fastbuild */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fastbuild; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2693FA820BA925A00E4D79B /* fbuild */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fbuild; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2693FAB20BA925A00E4D79B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -41,7 +41,7 @@
 		F2693F9F20BA925A00E4D79B = {
 			isa = PBXGroup;
 			children = (
-				F2693FAA20BA925A00E4D79B /* FastBuildSimple */,
+				F2693FAA20BA925A00E4D79B /* fbuild */,
 				F2693FA920BA925A00E4D79B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -49,25 +49,25 @@
 		F2693FA920BA925A00E4D79B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F2693FA820BA925A00E4D79B /* fastbuild */,
+				F2693FA820BA925A00E4D79B /* fbuild */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F2693FAA20BA925A00E4D79B /* FastBuildSimple */ = {
+		F2693FAA20BA925A00E4D79B /* fbuild */ = {
 			isa = PBXGroup;
 			children = (
 				F2693FAB20BA925A00E4D79B /* main.m */,
 			);
-			path = FastBuildSimple;
+			path = fbuild;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F2693FA720BA925A00E4D79B /* fastbuild */ = {
+		F2693FA720BA925A00E4D79B /* fbuild */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F2693FAF20BA925A00E4D79B /* Build configuration list for PBXNativeTarget "fastbuild" */;
+			buildConfigurationList = F2693FAF20BA925A00E4D79B /* Build configuration list for PBXNativeTarget "fbuild" */;
 			buildPhases = (
 				F2693FA420BA925A00E4D79B /* Sources */,
 				F2693FA520BA925A00E4D79B /* Frameworks */,
@@ -77,9 +77,9 @@
 			);
 			dependencies = (
 			);
-			name = fastbuild;
+			name = fbuild;
 			productName = FastBuildSimple;
-			productReference = F2693FA820BA925A00E4D79B /* fastbuild */;
+			productReference = F2693FA820BA925A00E4D79B /* fbuild */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -96,7 +96,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F2693FA320BA925A00E4D79B /* Build configuration list for PBXProject "fastbuild" */;
+			buildConfigurationList = F2693FA320BA925A00E4D79B /* Build configuration list for PBXProject "fbuild" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -108,7 +108,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F2693FA720BA925A00E4D79B /* fastbuild */,
+				F2693FA720BA925A00E4D79B /* fbuild */,
 			);
 		};
 /* End PBXProject section */
@@ -253,7 +253,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F2693FA320BA925A00E4D79B /* Build configuration list for PBXProject "fastbuild" */ = {
+		F2693FA320BA925A00E4D79B /* Build configuration list for PBXProject "fbuild" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F2693FAD20BA925A00E4D79B /* Debug */,
@@ -262,7 +262,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F2693FAF20BA925A00E4D79B /* Build configuration list for PBXNativeTarget "fastbuild" */ = {
+		F2693FAF20BA925A00E4D79B /* Build configuration list for PBXNativeTarget "fbuild" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F2693FB020BA925A00E4D79B /* Debug */,

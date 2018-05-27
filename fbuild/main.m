@@ -40,6 +40,19 @@ NSString *GetFileNameFromFilePath(NSString *filePath)
     return [fileComponents firstObject];
 }
 
+void initConfigFile()
+{
+    NSString *configDir = [NSString stringWithFormat:@"%@/Documents/fastbuild/",GetHomeDir()];
+    NSString *objcBuildConfigFile = [NSString stringWithFormat:@"%@/Documents/fastbuild/objc-build.sh",GetHomeDir()];
+    NSString *swiftBuildConfigFile = [NSString stringWithFormat:@"%@/Documents/fastbuild/swift-build.sh",GetHomeDir()];
+    NSString *rebuildConfigFile = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
+    
+    GetSystemCall([NSString stringWithFormat:@"mkdir -p %@",configDir]);
+    GetSystemCall([NSString stringWithFormat:@"touch %@",objcBuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"touch %@",swiftBuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"touch %@",rebuildConfigFile]);
+}
+
 int main(int argc, const char * argv[])
 {
     currentDIR = GetSystemCall(@"pwd");
@@ -48,6 +61,18 @@ int main(int argc, const char * argv[])
 #endif
     
     printf("[ENV] %s\n",currentDIR.UTF8String);
+    
+    if (argc >= 2)
+    {
+        NSString *param2 = [NSString stringWithUTF8String:argv[1]];
+        if ([param2 isEqualToString:@"init"])
+        {
+            initConfigFile();
+            
+            return 0;
+        }
+    }
+    
     // Get List file modify
     NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
     NSString *resultListFileModify = GetSystemCall(commandGetListFileModify);
