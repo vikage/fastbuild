@@ -95,7 +95,7 @@ int main(int argc, const char * argv[])
     BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
     if (writeResult)
     {
-        printf("Writen list file at path: %s\n",listFileSwiftWritePath.UTF8String);
+        printf("Written list file at path: %s\n",listFileSwiftWritePath.UTF8String);
     }
     
     printf("[ENV] %s\n",currentDIR.UTF8String);
