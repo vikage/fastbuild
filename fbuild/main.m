@@ -113,7 +113,7 @@ int main(int argc, const char * argv[])
     
     
     // Get List file modify
-    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^ M\\|^MM' | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
+    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^.M' | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
     NSString *resultListFileModify = GetSystemCall(commandGetListFileModify);
     NSArray *listFileNameModified = [resultListFileModify componentsSeparatedByString:@"\n"];
     
