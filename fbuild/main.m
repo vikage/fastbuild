@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include "Config.h"
 
 NSString *currentDIR;
 
@@ -24,7 +25,7 @@ NSString *GetHomeDir()
 
 NSString * GetSystemCall(NSString *cmd)
 {
-    NSString *tempFilePath = [NSString stringWithFormat:@"%@/Documents/Temp.out",GetHomeDir()];
+    NSString *tempFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/Temp.out",GetHomeDir()];
     NSString *reCmd = [NSString stringWithFormat:@"%@ > %@",cmd,tempFilePath];
     system(reCmd.UTF8String);
     
@@ -53,12 +54,35 @@ void initConfigFile()
     GetSystemCall([NSString stringWithFormat:@"touch %@",rebuildConfigFile]);
 }
 
+NSString *getAllFileSourceSwift()
+{
+    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.swift\" | grep -v 'Test'",currentDIR];
+    NSString *response = GetSystemCall(cmd);
+    
+    return response;
+}
+
+NSString *getListFileDir()
+{
+    NSString *listFileSwiftWritePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/listFile.txt", GetHomeDir()];
+    
+    return listFileSwiftWritePath;
+}
+
 int main(int argc, const char * argv[])
 {
     currentDIR = GetSystemCall(@"pwd");
-//#ifdef DEBUG
-//    currentDIR = @"/Users/fsociety/Desktop/TestSwift/";
-//#endif
+#ifdef DEBUG
+    currentDIR = @"/Users/fsociety/Desktop/XX";
+#endif
+    
+    NSString *listFile = getAllFileSourceSwift();
+    NSString *listFileSwiftWritePath = getListFileDir();
+    BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    if (writeResult)
+    {
+        printf("Writen list file at path: %s\n",listFileSwiftWritePath.UTF8String);
+    }
     
     printf("[ENV] %s\n",currentDIR.UTF8String);
     
@@ -74,7 +98,7 @@ int main(int argc, const char * argv[])
     }
     
     // Get List file modify
-    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
+    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep -v ' ^D\\|^ R\\|^D\\|^R' | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
     NSString *resultListFileModify = GetSystemCall(commandGetListFileModify);
     NSArray *listFileNameModified = [resultListFileModify componentsSeparatedByString:@"\n"];
     
@@ -104,8 +128,9 @@ void compileFile(NSString *filePath,NSString *fileName)
     
     NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/%@",GetHomeDir(),scriptFileName];
     NSString *compileCommand = [[NSString alloc] initWithContentsOfFile:scriptFilePath encoding:NSUTF8StringEncoding error:nil];
-    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:@"${FILENAME}" withString:fileName];
-    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:@"${FILEPATH}" withString:filePath];
+    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileName withString:fileName];
+    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
+    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileListDir withString:getListFileDir()];
     GetSystemCall(compileCommand);
 }
 
