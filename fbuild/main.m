@@ -56,9 +56,9 @@ void initConfigFile()
 int main(int argc, const char * argv[])
 {
     currentDIR = GetSystemCall(@"pwd");
-#ifdef DEBUG
-    currentDIR = @"/Users/fsociety/Desktop/TestSwift/";
-#endif
+//#ifdef DEBUG
+//    currentDIR = @"/Users/fsociety/Desktop/TestSwift/";
+//#endif
     
     printf("[ENV] %s\n",currentDIR.UTF8String);
     

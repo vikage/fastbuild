@@ -72,6 +72,7 @@
 				F2693FA420BA925A00E4D79B /* Sources */,
 				F2693FA520BA925A00E4D79B /* Frameworks */,
 				F2693FA620BA925A00E4D79B /* CopyFiles */,
+				F2E8C6B320BB8EAE00185668 /* Duplicate */,
 			);
 			buildRules = (
 			);
@@ -112,6 +113,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F2E8C6B320BB8EAE00185668 /* Duplicate */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Duplicate;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cp ${TARGET_BUILD_DIR}/fbuild ${TARGET_BUILD_DIR}/fux";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F2693FA420BA925A00E4D79B /* Sources */ = {
