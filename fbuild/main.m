@@ -86,9 +86,9 @@ NSString *getListFileDir()
 int main(int argc, const char * argv[])
 {
     currentDIR = GetSystemCall(@"pwd");
-#ifdef DEBUG
-    currentDIR = @"/Users/fsociety/Desktop/XX";
-#endif
+//#ifdef DEBUG
+//    currentDIR = @"/Users/fsociety/Desktop/TestSwift";
+//#endif
     PrintCopyRight();
     NSString *listFile = getAllFileSourceSwift();
     NSString *listFileSwiftWritePath = getListFileDir();
@@ -111,13 +111,19 @@ int main(int argc, const char * argv[])
         }
     }
     
+    
     // Get List file modify
-    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep -v ' ^D\\|^ R\\|^D\\|^R' | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
+    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^ M\\|^MM' | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
     NSString *resultListFileModify = GetSystemCall(commandGetListFileModify);
     NSArray *listFileNameModified = [resultListFileModify componentsSeparatedByString:@"\n"];
     
     for (NSString *fileModified in listFileNameModified)
     {
+        if (fileModified.length == 0)
+        {
+            continue;
+        }
+        
         NSString *fullPath = [NSString stringWithFormat:@"%@/%@",currentDIR,fileModified];
         
         NSString *fileName = GetFileNameFromFilePath(fileModified);
@@ -146,6 +152,7 @@ void compileFile(NSString *filePath,NSString *fileName)
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileListDir withString:getListFileDir()];
     GetSystemCall(compileCommand);
+    GetSystemCall([NSString stringWithFormat:@"git add %@",filePath]);
 }
 
 void reBuildBinary()
