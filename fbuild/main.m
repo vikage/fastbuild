@@ -17,6 +17,20 @@ NSString *currentDIR;
 void compileFile(NSString *filePath,NSString *fileName);
 void reBuildBinary(void);
 
+void PrintCopyRight()
+{
+    printf("\
+d88888b d8    8b '88      88' .d8888.  .d88b.   .o88b. d888888b d88888b d888888b db    db\n\
+88'     8P    Y8   '88  88'   88'  YP .8P  Y8. d8P  Y8   `88'   88         88    `8b  d8'\n\
+88ooo   88    88     '88'     `8bo.   88    88 8P         88    88ooooo    88     `8bd8'\n\
+88      88    88     '88'       `Y8b. 88    88 8b         88    88         88       88\n\
+88      '8b  d8'   'db  8D'   db   8D `8b  d8' Y8b  d8   .88.   88.        88       88\n\
+YP       'Y88P'  '88      88' '8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP       YP\n\n");
+    
+    printf("                  }-------{+} fastbuild xcode project {+}-------{}\n");
+    printf("                   }-------{+} Coded by fuxsociety {+}-------{}\n\n");
+}
+
 NSString *GetHomeDir()
 {
     char *home = getenv("HOME");
@@ -75,7 +89,7 @@ int main(int argc, const char * argv[])
 #ifdef DEBUG
     currentDIR = @"/Users/fsociety/Desktop/XX";
 #endif
-    
+    PrintCopyRight();
     NSString *listFile = getAllFileSourceSwift();
     NSString *listFileSwiftWritePath = getListFileDir();
     BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
