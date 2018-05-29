@@ -90,10 +90,13 @@ NSString *getListFileDir()
 
 int main(int argc, const char * argv[])
 {
+    NSString *cmdInitFolder = [NSString stringWithFormat:@"mkdir -p %@/Documents/fastbuild/",GetHomeDir()];
+    system(cmdInitFolder.UTF8String);
+    
     currentDIR = GetSystemCall(@"pwd");
     
 //#ifdef DEBUG
-//    currentDIR = @"/Users/fsociety/Desktop/AXXX";
+//    currentDIR = @"/Volumes/Workspace/ominext/assignmnent/ios";
 //#endif
     
     PrintCopyRight();
@@ -117,6 +120,8 @@ int main(int argc, const char * argv[])
             return 0;
         }
     }
+    
+//    autoConfig(@"BeeSystem");
     
     // Write listFile
     NSString *listFile = getAllFileSourceSwift();
@@ -173,10 +178,16 @@ void compileFile(NSString *filePath,NSString *fileName)
 void reBuildBinary()
 {
     printf("Rebuilding...\n");
-    NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
-    NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:scriptFilePath encoding:NSUTF8StringEncoding error:nil];
+    NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
+    NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:rebuildScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
     GetSystemCall(rebuildCommand);
+    
+    printf("Resigning...\n");
+    NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/resign.sh",GetHomeDir()];
+    NSString *resignCommand = [[NSString alloc] initWithContentsOfFile:resignScriptFilePath encoding:NSUTF8StringEncoding error:nil];
+    
+    GetSystemCall(resignCommand);
 }
 
 
@@ -217,6 +228,7 @@ void autoConfig(NSString *name)
     logContent = [logContent stringByReplacingOccurrencesOfString:@"36\"" withString:@"\n"];
     
     getSwiftBuildConfigFromLogContent(logContent);
+    getObjcBuildConfigFromLogContent(logContent);
     getLinkingConfigFromLogContent(logContent);
     
     printf("Config done\n");
@@ -274,7 +286,56 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
 
 void getObjcBuildConfigFromLogContent(NSString *logContent)
 {
+    NSRegularExpression *regexGetLinking = [NSRegularExpression regularExpressionWithPattern:@"^.*\\/clang [^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+    NSArray *resultMatching = [regexGetLinking matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
     
+    if (resultMatching.count != 0)
+    {
+        NSString *linkingCommand;
+        for (NSTextCheckingResult *checkingResult in resultMatching)
+        {
+            NSString *matchString = [logContent substringWithRange:checkingResult.range];
+            matchString = [matchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            
+            if ([matchString containsString:@"-fmodule-name="])
+            {
+                continue;
+            }
+            
+            if ([matchString containsString:@"-filelist"])
+            {
+                continue;
+            }
+            
+            linkingCommand = matchString;
+        }
+        
+        if (linkingCommand)
+        {
+            NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/]+\\/([a-z0-9]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+            NSArray *matchings = [regexGetFileName matchesInString:linkingCommand options:NSMatchingReportCompletion range:NSMakeRange(0, linkingCommand.length)];
+            
+            NSTextCheckingResult *firstMatch = [matchings firstObject];
+            if (firstMatch && firstMatch.numberOfRanges > 1)
+            {
+                NSRange fileNameRange = [firstMatch rangeAtIndex:1];
+                NSString *fileNameAndEx = [linkingCommand substringWithRange:fileNameRange];
+                NSString *fileName = [fileNameAndEx stringByReplacingOccurrencesOfString:@".m" withString:@""];
+                
+                NSMutableString *finalTargetCmd = [[NSMutableString alloc] initWithString:linkingCommand];
+                [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-c ${FILEPATH}"];
+                [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
+                
+                NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/objc-build.sh",GetHomeDir()];
+                BOOL writeResult = [finalTargetCmd writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+                
+                if (writeResult)
+                {
+                    printf("Written objc build config at path: %s\n", scriptFilePath.UTF8String);
+                }
+            }
+        }
+    }
 }
 
 void getLinkingConfigFromLogContent(NSString *logContent)
@@ -298,6 +359,25 @@ void getLinkingConfigFromLogContent(NSString *logContent)
         
         if (linkingCommand)
         {
+            NSString *codeSignCommand;
+            NSRegularExpression *codeSignRegex = [NSRegularExpression regularExpressionWithPattern:@"\\/usr\\/bin\\/codesign --force --sign [^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+            NSArray *matchCodeSignResults = [codeSignRegex matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
+            NSTextCheckingResult *codeSignLastMatch = [matchCodeSignResults lastObject];
+            
+            if (codeSignLastMatch)
+            {
+                codeSignCommand = [logContent substringWithRange:codeSignLastMatch.range];
+                codeSignCommand = [codeSignCommand stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                
+                NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/resign.sh",GetHomeDir()];
+                BOOL writeResult = [codeSignCommand writeToFile:resignScriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+                
+                if (writeResult)
+                {
+                    printf("Written resign config at path: %s\n", resignScriptFilePath.UTF8String);
+                }
+            }
+            
             NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
             BOOL writeResult = [linkingCommand writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
             

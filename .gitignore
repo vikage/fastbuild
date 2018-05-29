@@ -1,3 +1,4 @@
 fbuild.xcodeproj/project.xcworkspace/xcuserdata/
 fbuild.xcworkspace/xcuserdata/
-
+fbuild.xcodeproj/xcuserdata/
+*.DS_Store
