@@ -17,6 +17,9 @@ NSString *currentDIR;
 void compileFile(NSString *filePath,NSString *fileName);
 void reBuildBinary(void);
 void autoConfig(NSString *name);
+void getSwiftBuildConfigFromLogContent(NSString *logContent);
+void getObjcBuildConfigFromLogContent(NSString *logContent);
+void getLinkingConfigFromLogContent(NSString *logContent);
 
 
 void PrintCopyRight()
@@ -90,21 +93,11 @@ int main(int argc, const char * argv[])
     currentDIR = GetSystemCall(@"pwd");
     
 //#ifdef DEBUG
-//    currentDIR = @"/Users/fsociety/Desktop/TestSwift";
+//    currentDIR = @"/Users/fsociety/Desktop/AXXX";
 //#endif
     
-    autoConfig(@"TestSwift");
     PrintCopyRight();
-    NSString *listFile = getAllFileSourceSwift();
-    NSString *listFileSwiftWritePath = getListFileDir();
-    BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-    if (writeResult)
-    {
-        printf("Written list file at path: %s\n",listFileSwiftWritePath.UTF8String);
-    }
-    
     printf("[ENV] %s\n",currentDIR.UTF8String);
-    
     if (argc >= 2)
     {
         NSString *param2 = [NSString stringWithUTF8String:argv[1]];
@@ -114,8 +107,25 @@ int main(int argc, const char * argv[])
             
             return 0;
         }
+        
+        if ([param2 isEqualToString:@"config"] && argc >= 3)
+        {
+            NSString *projectName = [NSString stringWithUTF8String:argv[2]];
+            
+            autoConfig(projectName);
+            
+            return 0;
+        }
     }
     
+    // Write listFile
+    NSString *listFile = getAllFileSourceSwift();
+    NSString *listFileSwiftWritePath = getListFileDir();
+    BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    if (writeResult)
+    {
+        printf("Written list file at path: %s\n",listFileSwiftWritePath.UTF8String);
+    }
     
     // Get List file modify
     NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^.M' | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
@@ -172,13 +182,129 @@ void reBuildBinary()
 
 void autoConfig(NSString *name)
 {
+    initConfigFile();
+    printf("Auto config %s project\n",name.UTF8String);
     NSString *derivedDataPath = [NSString stringWithFormat:@"%@/Library/Developer/Xcode/DerivedData",GetHomeDir()];
-    NSString *cmd = [NSString stringWithFormat:@"ls -t %@ | grep '%@'",derivedDataPath,name];
+    NSString *cmd = [NSString stringWithFormat:@"ls -t %@ | grep '%@' | head -1",derivedDataPath,name];
     
     NSString *output = GetSystemCall(cmd);
+    
+    if (output.length == 0)
+    {
+        printf("Can not found '%s' project derivedData, please correct project name\n",name.UTF8String);
+        
+        exit(0);
+    }
     
     NSString *targetPath = [NSString stringWithFormat:@"%@/%@",derivedDataPath,output];
     NSString *logsPath = [NSString stringWithFormat:@"%@/Logs/Build",targetPath];
     
-    NSString *cmdGetLastestLog = 
+    NSString *cmdGetLastestLog = [NSString stringWithFormat:@"ls -t %@ | grep -v 'Cache' | head -1",logsPath];
+    
+    NSString *lastestLogFileName = GetSystemCall(cmdGetLastestLog);
+    
+    if (lastestLogFileName.length == 0)
+    {
+        printf("Can not found build log for '%s' project, please rebuild once and try again\n",name.UTF8String);
+        
+        exit(0);
+    }
+    
+    NSString *lastestLogPath = [NSString stringWithFormat:@"%@/%@",logsPath,lastestLogFileName];
+    
+    NSString *cmdGetLogContent = [NSString stringWithFormat:@"gunzip -c %@ -S .xcactivitylog",lastestLogPath];
+    NSString *logContent = GetSystemCall(cmdGetLogContent);
+    logContent = [logContent stringByReplacingOccurrencesOfString:@"36\"" withString:@"\n"];
+    
+    getSwiftBuildConfigFromLogContent(logContent);
+    getLinkingConfigFromLogContent(logContent);
+    
+    printf("Config done\n");
+}
+
+void getSwiftBuildConfigFromLogContent(NSString *logContent)
+{
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^.*swift -frontend[^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+    NSArray *matchResults = [regex matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
+    
+    NSString *targetCmd;
+    for (NSTextCheckingResult *checkingResult in matchResults)
+    {
+        NSString *checkingResultString = [logContent substringWithRange:checkingResult.range];
+        checkingResultString = [checkingResultString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        
+        if ([checkingResultString hasSuffix:@"PrecompiledHeaders"])
+        {
+            continue;
+        }
+        
+        targetCmd = checkingResultString;
+        break;
+    }
+    
+    if (targetCmd)
+    {
+        NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-primary-file [a-z0-9\\/]+\\/([a-z0-9]+\\.swift)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+        NSArray *matchings = [regexGetFileName matchesInString:targetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, targetCmd.length)];
+        
+        NSTextCheckingResult *firstMatch = [matchings firstObject];
+        if (firstMatch && firstMatch.numberOfRanges > 1)
+        {
+            NSRange fileNameRange = [firstMatch rangeAtIndex:1];
+            NSString *fileNameAndEx = [targetCmd substringWithRange:fileNameRange];
+            NSString *fileName = [fileNameAndEx stringByReplacingOccurrencesOfString:@".swift" withString:@""];
+            
+            NSMutableString *finalTargetCmd = [[NSMutableString alloc] initWithString:targetCmd];
+            [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-primary-file ${FILEPATH}"];
+            [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
+            
+            NSRegularExpression *regexReplaceListFile = [NSRegularExpression regularExpressionWithPattern:@"-filelist [a-z0-9\\/-_-]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+            [regexReplaceListFile replaceMatchesInString:finalTargetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, finalTargetCmd.length) withTemplate:@"-filelist ${FILE_LIST}"];
+            
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/swift-build.sh",GetHomeDir()];
+            BOOL writeResult = [finalTargetCmd writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            
+            if (writeResult)
+            {
+                printf("Written swift build config at path: %s\n", scriptFilePath.UTF8String);
+            }
+        }
+    }
+}
+
+void getObjcBuildConfigFromLogContent(NSString *logContent)
+{
+    
+}
+
+void getLinkingConfigFromLogContent(NSString *logContent)
+{
+    NSRegularExpression *regexGetLinking = [NSRegularExpression regularExpressionWithPattern:@"^.*\\/clang [^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+    NSArray *resultMatching = [regexGetLinking matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
+    
+    if (resultMatching.count != 0)
+    {
+        NSString *linkingCommand;
+        for (NSTextCheckingResult *checkingResult in resultMatching)
+        {
+            NSString *matchString = [logContent substringWithRange:checkingResult.range];
+            matchString = [matchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            
+            if ([matchString containsString:@"-filelist"])
+            {
+                linkingCommand = matchString;
+            }
+        }
+        
+        if (linkingCommand)
+        {
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
+            BOOL writeResult = [linkingCommand writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            
+            if (writeResult)
+            {
+                printf("Written relinking config at path: %s\n", scriptFilePath.UTF8String);
+            }
+        }
+    }
 }
