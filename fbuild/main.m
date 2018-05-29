@@ -307,6 +307,11 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
                 continue;
             }
             
+            if ([matchString containsString:@".c"])
+            {
+                continue;
+            }
+            
             linkingCommand = matchString;
         }
         
