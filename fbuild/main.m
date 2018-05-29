@@ -16,6 +16,8 @@ NSString *currentDIR;
 
 void compileFile(NSString *filePath,NSString *fileName);
 void reBuildBinary(void);
+void autoConfig(NSString *name);
+
 
 void PrintCopyRight()
 {
@@ -86,9 +88,12 @@ NSString *getListFileDir()
 int main(int argc, const char * argv[])
 {
     currentDIR = GetSystemCall(@"pwd");
+    
 //#ifdef DEBUG
 //    currentDIR = @"/Users/fsociety/Desktop/TestSwift";
 //#endif
+    
+    autoConfig(@"TestSwift");
     PrintCopyRight();
     NSString *listFile = getAllFileSourceSwift();
     NSString *listFileSwiftWritePath = getListFileDir();
@@ -162,4 +167,18 @@ void reBuildBinary()
     NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:scriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
     GetSystemCall(rebuildCommand);
+}
+
+
+void autoConfig(NSString *name)
+{
+    NSString *derivedDataPath = [NSString stringWithFormat:@"%@/Library/Developer/Xcode/DerivedData",GetHomeDir()];
+    NSString *cmd = [NSString stringWithFormat:@"ls -t %@ | grep '%@'",derivedDataPath,name];
+    
+    NSString *output = GetSystemCall(cmd);
+    
+    NSString *targetPath = [NSString stringWithFormat:@"%@/%@",derivedDataPath,output];
+    NSString *logsPath = [NSString stringWithFormat:@"%@/Logs/Build",targetPath];
+    
+    NSString *cmdGetLastestLog = 
 }
