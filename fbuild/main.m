@@ -24,6 +24,7 @@
 
 NSString *currentDIR;
 
+NSString *getConfigPath(void);
 BOOL compileFile(NSString *filePath,NSString *fileName);
 void reBuildBinary(void);
 void autoConfig(NSString *name);
@@ -34,13 +35,13 @@ void getLinkingConfigFromLogContent(NSString *logContent);
 
 void PrintCopyRight()
 {
-    printf("\
+    printf("%s\
 d88888b d8    8b '88      88' .d8888.  .d88b.   .o88b. d888888b d88888b d888888b db    db\n\
 88'     8P    Y8   '88  88'   88'  YP .8P  Y8. d8P  Y8   `88'   88         88    `8b  d8'\n\
 88ooo   88    88     '88'     `8bo.   88    88 8P         88    88ooooo    88     `8bd8'\n\
 88      88    88     '88'       `Y8b. 88    88 8b         88    88         88       88\n\
 88      '8b  d8'   'db  8D'   db   8D `8b  d8' Y8b  d8   .88.   88.        88       88\n\
-YP       'Y88P'  '88      88' '8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP       YP\n\n");
+YP       'Y88P'  '88      88' '8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP       YP\n\n%s",KRED,kRS);
     
     printf("                  }-------{+} fastbuild xcode project {+}-------{}\n");
     printf("                   }-------{+} Coded by fuxsociety {+}-------{}\n\n");
@@ -52,9 +53,14 @@ NSString *GetHomeDir()
     return [[NSString alloc] initWithUTF8String:home];
 }
 
+NSString *getConfigPath()
+{
+    return [NSString stringWithFormat:@"%@/Library/Developer/fastbuild",GetHomeDir()];
+}
+
 NSString * GetSystemCall(NSString *cmd)
 {
-    NSString *tempFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/Temp.out",GetHomeDir()];
+    NSString *tempFilePath = [NSString stringWithFormat:@"%@/Temp.out",getConfigPath()];
     NSString *reCmd = [NSString stringWithFormat:@"%@ &> %@",cmd,tempFilePath];
     system(reCmd.UTF8String);
     
@@ -72,15 +78,17 @@ NSString *GetFileNameFromFilePath(NSString *filePath)
 
 void initConfigFile()
 {
-    NSString *configDir = [NSString stringWithFormat:@"%@/Documents/fastbuild/",GetHomeDir()];
-    NSString *objcBuildConfigFile = [NSString stringWithFormat:@"%@/Documents/fastbuild/objc-build.sh",GetHomeDir()];
-    NSString *swiftBuildConfigFile = [NSString stringWithFormat:@"%@/Documents/fastbuild/swift-build.sh",GetHomeDir()];
-    NSString *rebuildConfigFile = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
+    NSString *configDir = getConfigPath();
+    NSString *objcBuildConfigFile = [NSString stringWithFormat:@"%@/objc-build.sh",configDir];
+    NSString *swiftBuildConfigFile = [NSString stringWithFormat:@"%@/swift-build.sh",configDir];
+    NSString *rebuildConfigFile = [NSString stringWithFormat:@"%@/rebuild.sh",configDir];
+    NSString *resignConfigFile = [NSString stringWithFormat:@"%@/resign.sh",configDir];
     
     GetSystemCall([NSString stringWithFormat:@"mkdir -p %@",configDir]);
     GetSystemCall([NSString stringWithFormat:@"touch %@",objcBuildConfigFile]);
     GetSystemCall([NSString stringWithFormat:@"touch %@",swiftBuildConfigFile]);
     GetSystemCall([NSString stringWithFormat:@"touch %@",rebuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"touch %@",resignConfigFile]);
 }
 
 NSString *getAllFileSourceSwift()
@@ -93,14 +101,14 @@ NSString *getAllFileSourceSwift()
 
 NSString *getListFileDir()
 {
-    NSString *listFileSwiftWritePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/listFile.txt", GetHomeDir()];
+    NSString *listFileSwiftWritePath = [NSString stringWithFormat:@"%@/listFile.txt", getConfigPath()];
     
     return listFileSwiftWritePath;
 }
 
 int main(int argc, const char * argv[])
 {
-    NSString *cmdInitFolder = [NSString stringWithFormat:@"mkdir -p %@/Documents/fastbuild/",GetHomeDir()];
+    NSString *cmdInitFolder = [NSString stringWithFormat:@"mkdir -p %@/",getConfigPath()];
     system(cmdInitFolder.UTF8String);
     
     currentDIR = GetSystemCall(@"pwd");
@@ -189,7 +197,7 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
         scriptFileName = @"swift-build.sh";
     }
     
-    NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/%@",GetHomeDir(),scriptFileName];
+    NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@",getConfigPath(),scriptFileName];
     NSString *compileCommand = [[NSString alloc] initWithContentsOfFile:scriptFilePath encoding:NSUTF8StringEncoding error:nil];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileName withString:fileName];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
@@ -211,13 +219,13 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
 void reBuildBinary()
 {
     printf("Rebuilding...\n");
-    NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
+    NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/rebuild.sh",getConfigPath()];
     NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:rebuildScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
     GetSystemCall(rebuildCommand);
     
     printf("Resigning...\n");
-    NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/resign.sh",GetHomeDir()];
+    NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/resign.sh",getConfigPath()];
     NSString *resignCommand = [[NSString alloc] initWithContentsOfFile:resignScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
     GetSystemCall(resignCommand);
@@ -235,7 +243,7 @@ void autoConfig(NSString *name)
     
     if (output.length == 0)
     {
-        printf("Can not found '%s' project derivedData, please correct project name\n",name.UTF8String);
+        printf("%sCan not found '%s' project derivedData, please correct project name%s\n",KRED,name.UTF8String,kRS);
         
         exit(0);
     }
@@ -249,7 +257,7 @@ void autoConfig(NSString *name)
     
     if (lastestLogFileName.length == 0)
     {
-        printf("Can not found build log for '%s' project, please rebuild once and try again\n",name.UTF8String);
+        printf("%sCan not found build log for '%s' project, please rebuild once and try again%s\n",KRED,name.UTF8String,kRS);
         
         exit(0);
     }
@@ -316,14 +324,22 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
             NSRegularExpression *regexReplaceListFile = [NSRegularExpression regularExpressionWithPattern:@"-filelist [a-z0-9\\/\\-_]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
             [regexReplaceListFile replaceMatchesInString:finalTargetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, finalTargetCmd.length) withTemplate:@"-filelist ${FILE_LIST}"];
             
-            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/swift-build.sh",GetHomeDir()];
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/swift-build.sh",getConfigPath()];
             BOOL writeResult = [finalTargetCmd writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
             
             if (writeResult)
             {
-                printf("Written swift build config at path: %s\n", scriptFilePath.UTF8String);
+                printf("%sWritten swift build config%s\n",KGRN,kRS);
             }
         }
+        else
+        {
+            printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",KRED,kRS);
+        }
+    }
+    else
+    {
+        printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",KRED,kRS);
     }
 }
 
@@ -374,12 +390,12 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
                 [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-c ${FILEPATH}"];
                 [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
                 
-                NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/objc-build.sh",GetHomeDir()];
+                NSString *scriptFilePath = [NSString stringWithFormat:@"%@/objc-build.sh",getConfigPath()];
                 BOOL writeResult = [finalTargetCmd writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
                 
                 if (writeResult)
                 {
-                    printf("Written objc build config at path: %s\n", scriptFilePath.UTF8String);
+                    printf("%sWritten objc build config%s\n",KGRN,kRS);
                 }
             }
         }
@@ -417,21 +433,21 @@ void getLinkingConfigFromLogContent(NSString *logContent)
                 codeSignCommand = [logContent substringWithRange:codeSignLastMatch.range];
                 codeSignCommand = [codeSignCommand stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
                 
-                NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/resign.sh",GetHomeDir()];
+                NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/resign.sh",getConfigPath()];
                 BOOL writeResult = [codeSignCommand writeToFile:resignScriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
                 
                 if (writeResult)
                 {
-                    printf("Written resign config at path: %s\n", resignScriptFilePath.UTF8String);
+                    printf("%sWritten resign build config%s\n",KGRN,kRS);
                 }
             }
             
-            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/rebuild.sh",GetHomeDir()];
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/rebuild.sh",getConfigPath()];
             BOOL writeResult = [linkingCommand writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
             
             if (writeResult)
             {
-                printf("Written relinking config at path: %s\n", scriptFilePath.UTF8String);
+                printf("%sWritten relink build config%s\n",KGRN,kRS);
             }
         }
     }
