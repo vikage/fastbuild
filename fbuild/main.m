@@ -85,10 +85,10 @@ void initConfigFile()
     NSString *resignConfigFile = [NSString stringWithFormat:@"%@/resign.sh",configDir];
     
     GetSystemCall([NSString stringWithFormat:@"mkdir -p %@",configDir]);
-    GetSystemCall([NSString stringWithFormat:@"touch %@",objcBuildConfigFile]);
-    GetSystemCall([NSString stringWithFormat:@"touch %@",swiftBuildConfigFile]);
-    GetSystemCall([NSString stringWithFormat:@"touch %@",rebuildConfigFile]);
-    GetSystemCall([NSString stringWithFormat:@"touch %@",resignConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",objcBuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",swiftBuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",rebuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",resignConfigFile]);
 }
 
 NSString *getAllFileSourceSwift()
