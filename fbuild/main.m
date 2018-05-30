@@ -12,9 +12,19 @@
 #include <pwd.h>
 #include "Config.h"
 
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+#define kRS   "\x1B[0m"
+
 NSString *currentDIR;
 
-void compileFile(NSString *filePath,NSString *fileName);
+BOOL compileFile(NSString *filePath,NSString *fileName);
 void reBuildBinary(void);
 void autoConfig(NSString *name);
 void getSwiftBuildConfigFromLogContent(NSString *logContent);
@@ -45,7 +55,7 @@ NSString *GetHomeDir()
 NSString * GetSystemCall(NSString *cmd)
 {
     NSString *tempFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/Temp.out",GetHomeDir()];
-    NSString *reCmd = [NSString stringWithFormat:@"%@ > %@",cmd,tempFilePath];
+    NSString *reCmd = [NSString stringWithFormat:@"%@ &> %@",cmd,tempFilePath];
     system(reCmd.UTF8String);
     
     NSString *output = [[NSString alloc] initWithContentsOfFile:tempFilePath encoding:NSUTF8StringEncoding error:nil];
@@ -137,6 +147,7 @@ int main(int argc, const char * argv[])
     NSString *resultListFileModify = GetSystemCall(commandGetListFileModify);
     NSArray *listFileNameModified = [resultListFileModify componentsSeparatedByString:@"\n"];
     
+    BOOL errorWhenCompile = NO;
     for (NSString *fileModified in listFileNameModified)
     {
         if (fileModified.length == 0)
@@ -148,7 +159,19 @@ int main(int argc, const char * argv[])
         
         NSString *fileName = GetFileNameFromFilePath(fileModified);
         
-        compileFile(fullPath, fileName);
+        BOOL compileResult = compileFile(fullPath, fileName);
+        
+        if (compileResult == NO)
+        {
+            errorWhenCompile = YES;
+            break;
+        }
+    }
+    
+    if (errorWhenCompile)
+    {
+        printf("%sCompile queue pause cause error occurred, Please fix code and retry!%s\n",KWHT,kRS);
+        exit(0);
     }
     
     reBuildBinary();
@@ -157,9 +180,9 @@ int main(int argc, const char * argv[])
     return 0;
 }
 
-void compileFile(NSString *filePath,NSString *fileName)
+BOOL compileFile(NSString *filePath,NSString *fileName)
 {
-    printf("Compiling %s\n",fileName.UTF8String);
+    printf("Compiling [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
     NSString *scriptFileName = @"objc-build.sh";
     if ([filePath hasSuffix:@"swift"])
     {
@@ -171,8 +194,18 @@ void compileFile(NSString *filePath,NSString *fileName)
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileName withString:fileName];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileListDir withString:getListFileDir()];
-    GetSystemCall(compileCommand);
-    GetSystemCall([NSString stringWithFormat:@"git add %@",filePath]);
+    NSString *compileResult = GetSystemCall(compileCommand);
+    
+    if (compileResult.length == 0 ||
+        ![compileResult containsString:@"error"])
+    {
+        printf("Compiled [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
+        GetSystemCall([NSString stringWithFormat:@"git add %@",filePath]);
+        return YES;
+    }
+    
+    printf("Error occurred while compile file: [%s%s%s] at path: [%s%s%s], Error: %s\n\n",KRED,fileName.UTF8String,kRS, KRED, filePath.UTF8String,kRS, compileResult.UTF8String);
+    return NO;
 }
 
 void reBuildBinary()
@@ -250,13 +283,23 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
             continue;
         }
         
+        if (![checkingResultString containsString:@"-primary-file"])
+        {
+            continue;
+        }
+        
         targetCmd = checkingResultString;
-        break;
     }
     
     if (targetCmd)
     {
-        NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-primary-file [a-z0-9\\/-_]+\\/([a-z0-9\\-_\\.]+\\.swift)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+        if (![targetCmd containsString:@"-filelist"])
+        {
+            printf("fastbuild only used to project with over 128 source file swift\n");
+            exit(0);
+        }
+        
+        NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-primary-file [a-z0-9\\/\\-_]+\\/([a-z0-9\\-_\\.]+\\.swift)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
         NSArray *matchings = [regexGetFileName matchesInString:targetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, targetCmd.length)];
         
         NSTextCheckingResult *firstMatch = [matchings firstObject];
@@ -270,7 +313,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
             [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-primary-file ${FILEPATH}"];
             [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
             
-            NSRegularExpression *regexReplaceListFile = [NSRegularExpression regularExpressionWithPattern:@"-filelist [a-z0-9\\/-_-]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+            NSRegularExpression *regexReplaceListFile = [NSRegularExpression regularExpressionWithPattern:@"-filelist [a-z0-9\\/\\-_]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
             [regexReplaceListFile replaceMatchesInString:finalTargetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, finalTargetCmd.length) withTemplate:@"-filelist ${FILE_LIST}"];
             
             NSString *scriptFilePath = [NSString stringWithFormat:@"%@/Documents/fastbuild/swift-build.sh",GetHomeDir()];
@@ -317,7 +360,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
         
         if (linkingCommand)
         {
-            NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/-]+\\/([a-z0-9\\-_\\.]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+            NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/\\-]+\\/([a-z0-9\\-_\\.]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
             NSArray *matchings = [regexGetFileName matchesInString:linkingCommand options:NSMatchingReportCompletion range:NSMakeRange(0, linkingCommand.length)];
             
             NSTextCheckingResult *firstMatch = [matchings firstObject];
