@@ -121,7 +121,7 @@ int main(int argc, const char * argv[])
         }
     }
     
-//    autoConfig(@"BeeSystem");
+//    autoConfig(@"Drjoy");
     
     // Write listFile
     NSString *listFile = getAllFileSourceSwift();
@@ -256,7 +256,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
     
     if (targetCmd)
     {
-        NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-primary-file [a-z0-9\\/]+\\/([a-z0-9]+\\.swift)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+        NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-primary-file [a-z0-9\\/-_]+\\/([a-z0-9\\-_\\.]+\\.swift)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
         NSArray *matchings = [regexGetFileName matchesInString:targetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, targetCmd.length)];
         
         NSTextCheckingResult *firstMatch = [matchings firstObject];
@@ -317,7 +317,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
         
         if (linkingCommand)
         {
-            NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/]+\\/([a-z0-9]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+            NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/-]+\\/([a-z0-9\\-_\\.]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
             NSArray *matchings = [regexGetFileName matchesInString:linkingCommand options:NSMatchingReportCompletion range:NSMakeRange(0, linkingCommand.length)];
             
             NSTextCheckingResult *firstMatch = [matchings firstObject];
