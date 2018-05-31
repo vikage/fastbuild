@@ -12,6 +12,8 @@
 #include <pwd.h>
 #include "Config.h"
 
+#define kVersion "1.0 beta 6"
+
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
 #define KGRN  "\x1B[32m"
@@ -26,7 +28,7 @@ NSString *currentDIR;
 
 NSString *getConfigPath(void);
 BOOL compileFile(NSString *filePath,NSString *fileName);
-void reBuildBinary(void);
+BOOL reBuildBinary(void);
 void autoConfig(NSString *name);
 void getSwiftBuildConfigFromLogContent(NSString *logContent);
 void getObjcBuildConfigFromLogContent(NSString *logContent);
@@ -60,6 +62,7 @@ NSString *getConfigPath()
 
 NSString * GetSystemCall(NSString *cmd)
 {
+    cmd = [cmd stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     NSString *tempFilePath = [NSString stringWithFormat:@"%@/Temp.out",getConfigPath()];
     NSString *reCmd = [NSString stringWithFormat:@"%@ &> %@",cmd,tempFilePath];
     system(reCmd.UTF8String);
@@ -137,9 +140,15 @@ int main(int argc, const char * argv[])
             
             return 0;
         }
+        
+        if ([param2 isEqualToString:@"version"])
+        {
+            printf("%s\n",kVersion);
+            return 0;
+        }
     }
     
-//    autoConfig(@"Drjoy");
+//    autoConfig(@"BeeSystem");
     
     // Write listFile
     NSString *listFile = getAllFileSourceSwift();
@@ -182,8 +191,11 @@ int main(int argc, const char * argv[])
         exit(0);
     }
     
-    reBuildBinary();
-    printf("Done\n");
+    BOOL result = reBuildBinary();
+    if (result)
+    {
+        printf("Done\n");
+    }
     
     return 0;
 }
@@ -216,19 +228,32 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
     return NO;
 }
 
-void reBuildBinary()
+BOOL reBuildBinary()
 {
     printf("Rebuilding...\n");
     NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/rebuild.sh",getConfigPath()];
     NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:rebuildScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
-    GetSystemCall(rebuildCommand);
+    NSString *resultRebuild = GetSystemCall(rebuildCommand);
+    
+    if (resultRebuild.length != 0)
+    {
+        printf("Rebuild failed with error: \n%s%s%s\n",KRED,resultRebuild.UTF8String,kRS);
+        return NO;
+    }
     
     printf("Resigning...\n");
     NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/resign.sh",getConfigPath()];
     NSString *resignCommand = [[NSString alloc] initWithContentsOfFile:resignScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
-    GetSystemCall(resignCommand);
+    NSString *resultResign = GetSystemCall(resignCommand);
+    if (resultResign.length != 0 && ![resultResign containsString:@"replacing existing signature"])
+    {
+        printf("Resign failed with error: \n%s%s%s\n",KRED,resultResign.UTF8String,kRS);
+        return NO;
+    }
+    
+    return YES;
 }
 
 
@@ -350,7 +375,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
     
     if (resultMatching.count != 0)
     {
-        NSString *linkingCommand;
+        NSString *compileCommand;
         for (NSTextCheckingResult *checkingResult in resultMatching)
         {
             NSString *matchString = [logContent substringWithRange:checkingResult.range];
@@ -371,22 +396,22 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
                 continue;
             }
             
-            linkingCommand = matchString;
+            compileCommand = matchString;
         }
         
-        if (linkingCommand)
+        if (compileCommand)
         {
             NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/\\-]+\\/([a-z0-9\\-_\\.]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
-            NSArray *matchings = [regexGetFileName matchesInString:linkingCommand options:NSMatchingReportCompletion range:NSMakeRange(0, linkingCommand.length)];
+            NSArray *matchings = [regexGetFileName matchesInString:compileCommand options:NSMatchingReportCompletion range:NSMakeRange(0, compileCommand.length)];
             
             NSTextCheckingResult *firstMatch = [matchings firstObject];
             if (firstMatch && firstMatch.numberOfRanges > 1)
             {
                 NSRange fileNameRange = [firstMatch rangeAtIndex:1];
-                NSString *fileNameAndEx = [linkingCommand substringWithRange:fileNameRange];
+                NSString *fileNameAndEx = [compileCommand substringWithRange:fileNameRange];
                 NSString *fileName = [fileNameAndEx stringByReplacingOccurrencesOfString:@".m" withString:@""];
                 
-                NSMutableString *finalTargetCmd = [[NSMutableString alloc] initWithString:linkingCommand];
+                NSMutableString *finalTargetCmd = [[NSMutableString alloc] initWithString:compileCommand];
                 [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-c ${FILEPATH}"];
                 [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
                 
