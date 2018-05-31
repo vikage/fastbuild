@@ -12,7 +12,7 @@
 #include <pwd.h>
 #include "Config.h"
 
-#define kVersion "1.0 beta 6"
+#define kVersion "1.0 beta 8"
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -332,7 +332,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
             exit(0);
         }
         
-        NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-primary-file [a-z0-9\\/\\-_]+\\/([a-z0-9\\-_\\.]+\\.swift)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+        NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-primary-file [a-z0-9\\/\\-_]+\\/([a-z0-9\\-_\\.+]+\\.swift)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
         NSArray *matchings = [regexGetFileName matchesInString:targetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, targetCmd.length)];
         
         NSTextCheckingResult *firstMatch = [matchings firstObject];
@@ -401,7 +401,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
         
         if (compileCommand)
         {
-            NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/\\-]+\\/([a-z0-9\\-_\\.]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+            NSRegularExpression *regexGetFileName = [NSRegularExpression regularExpressionWithPattern:@"-c [a-z0-9\\/\\-]+\\/([a-z0-9\\-_\\.+]+\\.m)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
             NSArray *matchings = [regexGetFileName matchesInString:compileCommand options:NSMatchingReportCompletion range:NSMakeRange(0, compileCommand.length)];
             
             NSTextCheckingResult *firstMatch = [matchings firstObject];

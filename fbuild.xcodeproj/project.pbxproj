@@ -7,22 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0445575F20BF965C00B47D22 /* install in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0445575E20BF95B800B47D22 /* install */; };
 		F2693FAC20BA925A00E4D79B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F2693FAB20BA925A00E4D79B /* main.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		F2693FA620BA925A00E4D79B /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				0445575F20BF965C00B47D22 /* install in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0445575E20BF95B800B47D22 /* install */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install; sourceTree = "<group>"; };
 		F2325DA620BBC1C000A55149 /* Config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		F2693FA820BA925A00E4D79B /* fbuild */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fbuild; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2693FAB20BA925A00E4D79B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -60,6 +63,7 @@
 			children = (
 				F2693FAB20BA925A00E4D79B /* main.m */,
 				F2325DA620BBC1C000A55149 /* Config.h */,
+				0445575E20BF95B800B47D22 /* install */,
 			);
 			path = fbuild;
 			sourceTree = "<group>";

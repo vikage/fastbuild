@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+PWD="`dirname '$0'`"
+echo $PWD
+sudo cp '$PWD/fux' /usr/local/bin/
+echo "Install success"
