@@ -12,11 +12,22 @@
 #include "FileHelper.h"
 BOOL compileFile(NSString *filePath,NSString *fileName)
 {
-    printf("Compiling [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
+    BOOL isXib = NO;
     NSString *scriptFileName = @"objc-build.sh";
-    if ([filePath hasSuffix:@"swift"])
+    if ([filePath hasSuffix:@".swift"] ||
+        [filePath hasSuffix:@".m"])
     {
-        scriptFileName = @"swift-build.sh";
+        printf("Compiling [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
+        if ([filePath hasSuffix:@"swift"])
+        {
+            scriptFileName = @"swift-build.sh";
+        }
+    }
+    else
+    {
+        printf("Compiling XIB [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
+        scriptFileName = @"xib-compile.sh";
+        isXib = YES;
     }
     
     NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@",getConfigPath(),scriptFileName];
@@ -29,7 +40,15 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
     if (compileResult.length == 0 ||
         ![compileResult containsString:@"error"])
     {
-        printf("Compiled [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
+        if (isXib)
+        {
+            printf("Compiled XIB [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
+        }
+        else
+        {
+            printf("Compiled [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
+        }
+        
         GetSystemCall([NSString stringWithFormat:@"git add %@",filePath]);
         return YES;
     }
@@ -79,6 +98,7 @@ void compileAllModifiedFile()
         }
         
         NSString *fullPath = [NSString stringWithFormat:@"%@/%@",currentDIR,fileModified];
+        fullPath = [fullPath stringByReplacingOccurrencesOfString:@" " withString:@"\\ "];
         
         NSString *fileName = GetFileNameFromFilePath(fileModified);
         
@@ -110,9 +130,10 @@ BOOL compileAllSource()
     NSArray *allSource = getAllSourceFile();
     for (NSString *filePath in allSource)
     {
-        NSString *fileName = GetFileNameFromFilePath(filePath);
+        NSString *path = [filePath stringByReplacingOccurrencesOfString:@" " withString:@"\\ "];
+        NSString *fileName = GetFileNameFromFilePath(path);
         
-        BOOL compileResult = compileFile(filePath, fileName);
+        BOOL compileResult = compileFile(path, fileName);
         if (compileResult == NO)
         {
             return NO;

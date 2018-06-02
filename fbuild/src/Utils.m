@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "Utils.h"
 
+NSString *currentDIR;
+
 NSString * GetSystemCall(NSString *cmd)
 {
     cmd = [cmd stringByReplacingOccurrencesOfString:@"\n" withString:@""];

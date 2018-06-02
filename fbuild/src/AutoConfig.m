@@ -45,7 +45,7 @@ void autoConfig(NSString *name)
     NSString *targetPath = [NSString stringWithFormat:@"%@/%@",derivedDataPath,output];
     NSString *logsPath = [NSString stringWithFormat:@"%@/Logs/Build",targetPath];
     
-    NSString *cmdGetLastestLog = [NSString stringWithFormat:@"ls -t %@ | grep -v 'Cache' | head -1",logsPath];
+    NSString *cmdGetLastestLog = [NSString stringWithFormat:@"ls -t %@ | grep -v 'Cache' | grep 'xcactivitylog' | head -1",logsPath];
     
     NSString *lastestLogFileName = GetSystemCall(cmdGetLastestLog);
     
@@ -65,6 +65,7 @@ void autoConfig(NSString *name)
     getSwiftBuildConfigFromLogContent(logContent);
     getObjcBuildConfigFromLogContent(logContent);
     getLinkingConfigFromLogContent(logContent);
+    getXibConfigFromLogContent(logContent);
     
     printf("Config done\n");
 }
@@ -242,6 +243,53 @@ void getLinkingConfigFromLogContent(NSString *logContent)
             if (writeResult)
             {
                 printf("%sWritten relink build config%s\n",KGRN,kRS);
+            }
+        }
+    }
+}
+
+void getXibConfigFromLogContent(NSString *logContent)
+{
+    NSRegularExpression *regexGetXibCompile = [NSRegularExpression regularExpressionWithPattern:@"^.*\\/ibtool [^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+    NSArray *resultMatching = [regexGetXibCompile matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
+    
+    NSString *compileXibCommand;
+    
+    for(NSTextCheckingResult *checkingResult in resultMatching)
+    {
+        NSString *cmd = [logContent substringWithRange:checkingResult.range];
+        cmd = [cmd stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        
+        if ([cmd containsString:@"storyboard"])
+        {
+            continue;
+        }
+        
+        compileXibCommand = cmd;
+    }
+    
+    if (compileXibCommand)
+    {
+        NSRegularExpression *regexGetFileNameAndEx = [NSRegularExpression regularExpressionWithPattern:@"\\.nib (.*\\/([a-z0-9\\-_\\.+]+)\\.xib)" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
+        
+        NSArray *matchRegexGetFileNameAndEx = [regexGetFileNameAndEx matchesInString:compileXibCommand options:NSMatchingReportCompletion range:NSMakeRange(0, compileXibCommand.length)];
+        NSTextCheckingResult *fileNameMatchResult = [matchRegexGetFileNameAndEx firstObject];
+        
+        if (fileNameMatchResult && fileNameMatchResult.numberOfRanges > 2)
+        {
+            NSRange fileNameAndExRange = [fileNameMatchResult rangeAtIndex:2];
+            NSString *fileName = [compileXibCommand substringWithRange:fileNameAndExRange];
+            
+            NSMutableString *finalCompileXibCommand = [[NSMutableString alloc] initWithString:compileXibCommand];
+            [finalCompileXibCommand replaceCharactersInRange:[fileNameMatchResult rangeAtIndex:1] withString:@"${FILEPATH}"];
+            [finalCompileXibCommand replaceOccurrencesOfString:fileName withString:@"${FILENAME}" options:0 range:NSMakeRange(0, finalCompileXibCommand.length)];
+            
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/xib-compile.sh",getConfigPath()];
+            BOOL writeResult = [finalCompileXibCommand writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            
+            if (writeResult)
+            {
+                printf("%sWritten xib-compile config%s\n",KGRN,kRS);
             }
         }
     }

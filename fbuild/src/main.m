@@ -38,12 +38,13 @@ int main(int argc, const char * argv[])
     system(cmdInitFolder.UTF8String);
     
     currentDIR = GetSystemCall(@"pwd");
-    
+
 //#ifdef DEBUG
-//    currentDIR = @"/Volumes/Workspace/ominext/assignmnent/ios";
+//    currentDIR = @"/Users/fuxsociety/Desktop/DemoCompile";
 //#endif
     
     PrintCopyRight();
+//    autoConfig(@"DemoCompile");
     printf("[ENV] %s\n",currentDIR.UTF8String);
     checkArgs(argc, argv);
     writeListFileSwift();

@@ -13,3 +13,4 @@ void autoConfig(NSString *name);
 void getSwiftBuildConfigFromLogContent(NSString *logContent);
 void getObjcBuildConfigFromLogContent(NSString *logContent);
 void getLinkingConfigFromLogContent(NSString *logContent);
+void getXibConfigFromLogContent(NSString *logContent);

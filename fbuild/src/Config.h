@@ -10,7 +10,7 @@
 #define kFileName @"${FILENAME}"
 #define kFileListDir @"${FILE_LIST}"
 
-#define kVersion "1.0 beta 9"
+#define kVersion "1.0 beta 10"
 
 #define KNRM  "\x1B[0m"
 #define kRED  "\x1B[31m"

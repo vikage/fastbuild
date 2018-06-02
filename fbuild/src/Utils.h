@@ -6,7 +6,7 @@
 //  Copyright © 2018 fsociety. All rights reserved.
 //
 
-static NSString *currentDIR;
+extern NSString *currentDIR;
 
 NSString * GetSystemCall(NSString *cmd);
 NSString *GetHomeDir(void);

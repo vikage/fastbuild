@@ -12,7 +12,7 @@
 
 NSArray *getAllFileSourceObjc()
 {
-    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.m\" | grep -v 'Test'",currentDIR];
+    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.m\" | grep -v 'Test'| grep -v 'Pods'",currentDIR];
     NSString *response = GetSystemCall(cmd);
     
     return [response componentsSeparatedByString:@"\n"];
@@ -20,7 +20,7 @@ NSArray *getAllFileSourceObjc()
 
 NSString *getAllFileSourceSwift()
 {
-    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.swift\" | grep -v 'Test'",currentDIR];
+    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.swift\" | grep -v 'Test'| grep -v 'Pods'",currentDIR];
     NSString *response = GetSystemCall(cmd);
     
     return response;
@@ -35,8 +35,9 @@ NSString *getListFileDir()
 
 NSArray *getListFileModified()
 {
-    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^.M' | cut -c4- | grep -E \".m$|.swift$\"",currentDIR];
+    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^.M' | cut -c4- | grep -E \".m$|.m\\\"$|.swift$|.swift\\\"$|.xib\"",currentDIR];
     NSString *resultListFileModify = GetSystemCall(commandGetListFileModify);
+    resultListFileModify = [resultListFileModify stringByReplacingOccurrencesOfString:@"\"" withString:@""];
     
     return [resultListFileModify componentsSeparatedByString:@"\n"];;
 }
@@ -57,6 +58,11 @@ NSArray *getAllSourceFile()
     NSMutableArray *allSourceFile = [[NSMutableArray alloc] init];
     NSString *allSourceSwiftString = getAllFileSourceSwift();
     NSArray *allSourceSwift = [allSourceSwiftString componentsSeparatedByString:@"\n"];
+    if (allSourceSwiftString.length == 0)
+    {
+        allSourceSwift = nil;
+    }
+    
     NSArray *allSourceObjc = getAllFileSourceObjc();
     
     [allSourceFile addObjectsFromArray:allSourceObjc];
