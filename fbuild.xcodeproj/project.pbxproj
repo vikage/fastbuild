@@ -26,6 +26,12 @@
 
 /* Begin PBXFileReference section */
 		0445575E20BF95B800B47D22 /* install */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install; sourceTree = "<group>"; };
+		04F98A2D20C267140077657F /* fux.pkg */ = {isa = PBXFileReference; lastKnownFileType = file; path = fux.pkg; sourceTree = "<group>"; };
+		04F98A2E20C267150077657F /* fux */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = fux; sourceTree = "<group>"; };
+		04F98A2F20C267150077657F /* fux.pkgproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = fux.pkgproj; sourceTree = "<group>"; };
+		04F98A3020C267150077657F /* license-en.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "license-en.txt"; sourceTree = "<group>"; };
+		04F98A3120C267150077657F /* license-vi.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "license-vi.txt"; sourceTree = "<group>"; };
+		04F98A3220C267150077657F /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
 		F2325DA620BBC1C000A55149 /* Config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		F2693FA820BA925A00E4D79B /* fbuild */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fbuild; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2693FAB20BA925A00E4D79B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -42,6 +48,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04F98A2B20C267140077657F /* installer */ = {
+			isa = PBXGroup;
+			children = (
+				04F98A2C20C267140077657F /* build */,
+				04F98A2E20C267150077657F /* fux */,
+				04F98A2F20C267150077657F /* fux.pkgproj */,
+				04F98A3020C267150077657F /* license-en.txt */,
+				04F98A3120C267150077657F /* license-vi.txt */,
+				04F98A3220C267150077657F /* version.txt */,
+			);
+			path = installer;
+			sourceTree = SOURCE_ROOT;
+		};
+		04F98A2C20C267140077657F /* build */ = {
+			isa = PBXGroup;
+			children = (
+				04F98A2D20C267140077657F /* fux.pkg */,
+			);
+			path = build;
+			sourceTree = "<group>";
+		};
 		F2693F9F20BA925A00E4D79B = {
 			isa = PBXGroup;
 			children = (
@@ -64,6 +91,7 @@
 				F2693FAB20BA925A00E4D79B /* main.m */,
 				F2325DA620BBC1C000A55149 /* Config.h */,
 				0445575E20BF95B800B47D22 /* install */,
+				04F98A2B20C267140077657F /* installer */,
 			);
 			path = fbuild;
 			sourceTree = "<group>";
@@ -78,7 +106,7 @@
 				F2693FA420BA925A00E4D79B /* Sources */,
 				F2693FA520BA925A00E4D79B /* Frameworks */,
 				F2693FA620BA925A00E4D79B /* CopyFiles */,
-				F2E8C6B320BB8EAE00185668 /* Duplicate */,
+				F2E8C6B320BB8EAE00185668 /* Copy file */,
 			);
 			buildRules = (
 			);
@@ -121,19 +149,19 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		F2E8C6B320BB8EAE00185668 /* Duplicate */ = {
+		F2E8C6B320BB8EAE00185668 /* Copy file */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = Duplicate;
+			name = "Copy file";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp ${TARGET_BUILD_DIR}/fbuild ${TARGET_BUILD_DIR}/fux";
+			shellScript = "mkdir -p ${TARGET_BUILD_DIR}/bin/\ncp ${TARGET_BUILD_DIR}/fbuild ${TARGET_BUILD_DIR}/bin/fux\ncp ${TARGET_BUILD_DIR}/fbuild ${SRCROOT}/installer/fux\n#pkgbuild --install-location /usr/local/bin --root ${TARGET_BUILD_DIR}/bin --identifier com.thanhdev.fux --version 1.0 ${TARGET_BUILD_DIR}/fux.pkg";
 		};
 /* End PBXShellScriptBuildPhase section */
 

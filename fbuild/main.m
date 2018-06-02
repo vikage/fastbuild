@@ -12,10 +12,10 @@
 #include <pwd.h>
 #include "Config.h"
 
-#define kVersion "1.0 beta 8"
+#define kVersion "1.0 beta 9"
 
 #define KNRM  "\x1B[0m"
-#define KRED  "\x1B[31m"
+#define kRED  "\x1B[31m"
 #define KGRN  "\x1B[32m"
 #define KYEL  "\x1B[33m"
 #define KBLU  "\x1B[34m"
@@ -43,7 +43,7 @@ d88888b d8    8b '88      88' .d8888.  .d88b.   .o88b. d888888b d88888b d888888b
 88ooo   88    88     '88'     `8bo.   88    88 8P         88    88ooooo    88     `8bd8'\n\
 88      88    88     '88'       `Y8b. 88    88 8b         88    88         88       88\n\
 88      '8b  d8'   'db  8D'   db   8D `8b  d8' Y8b  d8   .88.   88.        88       88\n\
-YP       'Y88P'  '88      88' '8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP       YP\n\n%s",KRED,kRS);
+YP       'Y88P'  '88      88' '8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP       YP\n\n%s",kRED,kRS);
     
     printf("                  }-------{+} fastbuild xcode project {+}-------{}\n");
     printf("                   }-------{+} Coded by fuxsociety {+}-------{}\n\n");
@@ -156,7 +156,7 @@ int main(int argc, const char * argv[])
     BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
     if (writeResult)
     {
-        printf("Written list file at path: %s\n",listFileSwiftWritePath.UTF8String);
+        printf("%sWritten list file%s\n",KGRN,kRS);
     }
     
     // Get List file modify
@@ -224,7 +224,7 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
         return YES;
     }
     
-    printf("Error occurred while compile file: [%s%s%s] at path: [%s%s%s], Error: %s\n\n",KRED,fileName.UTF8String,kRS, KRED, filePath.UTF8String,kRS, compileResult.UTF8String);
+    printf("Error occurred while compile file: [%s%s%s] at path: [%s%s%s], Error: %s\n\n",kRED,fileName.UTF8String,kRS, kRED, filePath.UTF8String,kRS, compileResult.UTF8String);
     return NO;
 }
 
@@ -238,7 +238,7 @@ BOOL reBuildBinary()
     
     if (resultRebuild.length != 0)
     {
-        printf("Rebuild failed with error: \n%s%s%s\n",KRED,resultRebuild.UTF8String,kRS);
+        printf("Rebuild failed with error: \n%s%s%s\n",kRED,resultRebuild.UTF8String,kRS);
         return NO;
     }
     
@@ -249,7 +249,7 @@ BOOL reBuildBinary()
     NSString *resultResign = GetSystemCall(resignCommand);
     if (resultResign.length != 0 && ![resultResign containsString:@"replacing existing signature"])
     {
-        printf("Resign failed with error: \n%s%s%s\n",KRED,resultResign.UTF8String,kRS);
+        printf("Resign failed with error: \n%s%s%s\n",kRED,resultResign.UTF8String,kRS);
         return NO;
     }
     
@@ -268,7 +268,7 @@ void autoConfig(NSString *name)
     
     if (output.length == 0)
     {
-        printf("%sCan not found '%s' project derivedData, please correct project name%s\n",KRED,name.UTF8String,kRS);
+        printf("%sCan not found '%s' project derivedData, please correct project name%s\n",kRED,name.UTF8String,kRS);
         
         exit(0);
     }
@@ -282,7 +282,7 @@ void autoConfig(NSString *name)
     
     if (lastestLogFileName.length == 0)
     {
-        printf("%sCan not found build log for '%s' project, please rebuild once and try again%s\n",KRED,name.UTF8String,kRS);
+        printf("%sCan not found build log for '%s' project, please rebuild once and try again%s\n",kRED,name.UTF8String,kRS);
         
         exit(0);
     }
@@ -328,7 +328,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
     {
         if (![targetCmd containsString:@"-filelist"])
         {
-            printf("fastbuild only used to project with over 128 source file swift\n");
+            printf("%sfux only used to project with over 128 source file swift%s\n",kRED,kRS);
             exit(0);
         }
         
@@ -359,12 +359,12 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
         }
         else
         {
-            printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",KRED,kRS);
+            printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",kRED,kRS);
         }
     }
     else
     {
-        printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",KRED,kRS);
+        printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",kRED,kRS);
     }
 }
 
