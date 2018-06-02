@@ -11,4 +11,6 @@
 
 BOOL compileFile(NSString *filePath,NSString *fileName);
 BOOL reBuildBinary(void);
-
+void compileAllModifiedFile(void);
+BOOL compileAllSource(void);
+void compileAllSourceAndRebuild(void);

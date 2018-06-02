@@ -9,6 +9,15 @@
 #include "FileHelper.h"
 #include "Utils.h"
 #include "Config.h"
+
+NSArray *getAllFileSourceObjc()
+{
+    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.m\" | grep -v 'Test'",currentDIR];
+    NSString *response = GetSystemCall(cmd);
+    
+    return [response componentsSeparatedByString:@"\n"];
+}
+
 NSString *getAllFileSourceSwift()
 {
     NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.swift\" | grep -v 'Test'",currentDIR];
@@ -41,4 +50,17 @@ void writeListFileSwift()
     {
         printf("%sWritten list file%s\n",KGRN,kRS);
     }
+}
+
+NSArray *getAllSourceFile()
+{
+    NSMutableArray *allSourceFile = [[NSMutableArray alloc] init];
+    NSString *allSourceSwiftString = getAllFileSourceSwift();
+    NSArray *allSourceSwift = [allSourceSwiftString componentsSeparatedByString:@"\n"];
+    NSArray *allSourceObjc = getAllFileSourceObjc();
+    
+    [allSourceFile addObjectsFromArray:allSourceObjc];
+    [allSourceFile addObjectsFromArray:allSourceSwift];
+    
+    return allSourceFile;
 }

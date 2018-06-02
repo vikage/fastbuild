@@ -65,3 +65,74 @@ BOOL reBuildBinary()
     
     return YES;
 }
+
+void compileAllModifiedFile()
+{
+    NSArray *listFileNameModified = getListFileModified();
+    
+    BOOL errorWhenCompile = NO;
+    for (NSString *fileModified in listFileNameModified)
+    {
+        if (fileModified.length == 0)
+        {
+            continue;
+        }
+        
+        NSString *fullPath = [NSString stringWithFormat:@"%@/%@",currentDIR,fileModified];
+        
+        NSString *fileName = GetFileNameFromFilePath(fileModified);
+        
+        BOOL compileResult = compileFile(fullPath, fileName);
+        
+        if (compileResult == NO)
+        {
+            errorWhenCompile = YES;
+            break;
+        }
+    }
+    
+    if (errorWhenCompile)
+    {
+        printf("%sCompile queue pause cause error occurred, Please fix code and retry!%s\n",KWHT,kRS);
+        exit(0);
+    }
+    
+    BOOL result = reBuildBinary();
+    if (result)
+    {
+        printf("Done\n");
+    }
+}
+
+
+BOOL compileAllSource()
+{
+    NSArray *allSource = getAllSourceFile();
+    for (NSString *filePath in allSource)
+    {
+        NSString *fileName = GetFileNameFromFilePath(filePath);
+        
+        BOOL compileResult = compileFile(filePath, fileName);
+        if (compileResult == NO)
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
+void compileAllSourceAndRebuild(void)
+{
+    BOOL compileAllSourceResult = compileAllSource();
+    if (compileAllSourceResult == NO)
+    {
+        exit(0);
+    }
+    
+    BOOL resultBuildAndResign = reBuildBinary();
+    if (resultBuildAndResign == YES)
+    {
+        printf("Done\n");
+    }
+}

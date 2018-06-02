@@ -47,7 +47,7 @@ int main(int argc, const char * argv[])
     printf("[ENV] %s\n",currentDIR.UTF8String);
     checkArgs(argc, argv);
     writeListFileSwift();
-    getListFileModified();
+    compileAllModifiedFile();
     
     return 0;
 }
@@ -78,43 +78,11 @@ void checkArgs(int argc, const char * argv[])
             printf("%s\n",kVersion);
             exit(0);
         }
-    }
-}
-
-void getListFileModifiedAndCompile()
-{
-    NSArray *listFileNameModified = getListFileModified();
-    
-    BOOL errorWhenCompile = NO;
-    for (NSString *fileModified in listFileNameModified)
-    {
-        if (fileModified.length == 0)
+        
+        if ([param2 isEqualToString:@"all"])
         {
-            continue;
+            compileAllSourceAndRebuild();
+            exit(0);
         }
-        
-        NSString *fullPath = [NSString stringWithFormat:@"%@/%@",currentDIR,fileModified];
-        
-        NSString *fileName = GetFileNameFromFilePath(fileModified);
-        
-        BOOL compileResult = compileFile(fullPath, fileName);
-        
-        if (compileResult == NO)
-        {
-            errorWhenCompile = YES;
-            break;
-        }
-    }
-    
-    if (errorWhenCompile)
-    {
-        printf("%sCompile queue pause cause error occurred, Please fix code and retry!%s\n",KWHT,kRS);
-        exit(0);
-    }
-    
-    BOOL result = reBuildBinary();
-    if (result)
-    {
-        printf("Done\n");
     }
 }
