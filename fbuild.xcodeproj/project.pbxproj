@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		0445575F20BF965C00B47D22 /* install in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0445575E20BF95B800B47D22 /* install */; };
+		04F98A3520C287B10077657F /* CompilerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F98A3420C287B10077657F /* CompilerHelper.m */; };
+		04F98A3820C287C10077657F /* AutoConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F98A3720C287C10077657F /* AutoConfig.m */; };
+		04F98A3A20C288360077657F /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F98A3920C288360077657F /* Utils.m */; };
+		04F98A3E20C289830077657F /* FileHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F98A3D20C289830077657F /* FileHelper.m */; };
 		F2693FAC20BA925A00E4D79B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F2693FAB20BA925A00E4D79B /* main.m */; };
 /* End PBXBuildFile section */
 
@@ -27,11 +31,18 @@
 /* Begin PBXFileReference section */
 		0445575E20BF95B800B47D22 /* install */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install; sourceTree = "<group>"; };
 		04F98A2D20C267140077657F /* fux.pkg */ = {isa = PBXFileReference; lastKnownFileType = file; path = fux.pkg; sourceTree = "<group>"; };
-		04F98A2E20C267150077657F /* fux */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = fux; sourceTree = "<group>"; };
 		04F98A2F20C267150077657F /* fux.pkgproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = fux.pkgproj; sourceTree = "<group>"; };
 		04F98A3020C267150077657F /* license-en.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "license-en.txt"; sourceTree = "<group>"; };
 		04F98A3120C267150077657F /* license-vi.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "license-vi.txt"; sourceTree = "<group>"; };
 		04F98A3220C267150077657F /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
+		04F98A3320C287B10077657F /* CompilerHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompilerHelper.h; sourceTree = "<group>"; };
+		04F98A3420C287B10077657F /* CompilerHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CompilerHelper.m; sourceTree = "<group>"; };
+		04F98A3620C287C10077657F /* AutoConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AutoConfig.h; sourceTree = "<group>"; };
+		04F98A3720C287C10077657F /* AutoConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AutoConfig.m; sourceTree = "<group>"; };
+		04F98A3920C288360077657F /* Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Utils.m; sourceTree = "<group>"; };
+		04F98A3B20C2883F0077657F /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		04F98A3C20C2897C0077657F /* FileHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileHelper.h; sourceTree = "<group>"; };
+		04F98A3D20C289830077657F /* FileHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileHelper.m; sourceTree = "<group>"; };
 		F2325DA620BBC1C000A55149 /* Config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		F2693FA820BA925A00E4D79B /* fbuild */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fbuild; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2693FAB20BA925A00E4D79B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -51,8 +62,8 @@
 		04F98A2B20C267140077657F /* installer */ = {
 			isa = PBXGroup;
 			children = (
+				0445575E20BF95B800B47D22 /* install */,
 				04F98A2C20C267140077657F /* build */,
-				04F98A2E20C267150077657F /* fux */,
 				04F98A2F20C267150077657F /* fux.pkgproj */,
 				04F98A3020C267150077657F /* license-en.txt */,
 				04F98A3120C267150077657F /* license-vi.txt */,
@@ -67,6 +78,23 @@
 				04F98A2D20C267140077657F /* fux.pkg */,
 			);
 			path = build;
+			sourceTree = "<group>";
+		};
+		04F98A3F20C28B220077657F /* src */ = {
+			isa = PBXGroup;
+			children = (
+				F2693FAB20BA925A00E4D79B /* main.m */,
+				F2325DA620BBC1C000A55149 /* Config.h */,
+				04F98A3320C287B10077657F /* CompilerHelper.h */,
+				04F98A3420C287B10077657F /* CompilerHelper.m */,
+				04F98A3620C287C10077657F /* AutoConfig.h */,
+				04F98A3720C287C10077657F /* AutoConfig.m */,
+				04F98A3920C288360077657F /* Utils.m */,
+				04F98A3B20C2883F0077657F /* Utils.h */,
+				04F98A3C20C2897C0077657F /* FileHelper.h */,
+				04F98A3D20C289830077657F /* FileHelper.m */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 		F2693F9F20BA925A00E4D79B = {
@@ -88,9 +116,7 @@
 		F2693FAA20BA925A00E4D79B /* fbuild */ = {
 			isa = PBXGroup;
 			children = (
-				F2693FAB20BA925A00E4D79B /* main.m */,
-				F2325DA620BBC1C000A55149 /* Config.h */,
-				0445575E20BF95B800B47D22 /* install */,
+				04F98A3F20C28B220077657F /* src */,
 				04F98A2B20C267140077657F /* installer */,
 			);
 			path = fbuild;
@@ -170,7 +196,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04F98A3E20C289830077657F /* FileHelper.m in Sources */,
+				04F98A3520C287B10077657F /* CompilerHelper.m in Sources */,
+				04F98A3820C287C10077657F /* AutoConfig.m in Sources */,
 				F2693FAC20BA925A00E4D79B /* main.m in Sources */,
+				04F98A3A20C288360077657F /* Utils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

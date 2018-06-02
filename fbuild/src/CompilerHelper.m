@@ -1,0 +1,67 @@
+//
+//  CompilerHelper.c
+//  fbuild
+//
+//  Created by fuxsociety on 6/2/18.
+//  Copyright © 2018 fsociety. All rights reserved.
+//
+
+#include "CompilerHelper.h"
+#include "Utils.h"
+#include "AutoConfig.h"
+#include "FileHelper.h"
+BOOL compileFile(NSString *filePath,NSString *fileName)
+{
+    printf("Compiling [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
+    NSString *scriptFileName = @"objc-build.sh";
+    if ([filePath hasSuffix:@"swift"])
+    {
+        scriptFileName = @"swift-build.sh";
+    }
+    
+    NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@",getConfigPath(),scriptFileName];
+    NSString *compileCommand = [[NSString alloc] initWithContentsOfFile:scriptFilePath encoding:NSUTF8StringEncoding error:nil];
+    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileName withString:fileName];
+    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
+    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileListDir withString:getListFileDir()];
+    NSString *compileResult = GetSystemCall(compileCommand);
+    
+    if (compileResult.length == 0 ||
+        ![compileResult containsString:@"error"])
+    {
+        printf("Compiled [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
+        GetSystemCall([NSString stringWithFormat:@"git add %@",filePath]);
+        return YES;
+    }
+    
+    printf("Error occurred while compile file: [%s%s%s] at path: [%s%s%s], Error: %s\n\n",kRED,fileName.UTF8String,kRS, kRED, filePath.UTF8String,kRS, compileResult.UTF8String);
+    return NO;
+}
+
+BOOL reBuildBinary()
+{
+    printf("Rebuilding...\n");
+    NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/rebuild.sh",getConfigPath()];
+    NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:rebuildScriptFilePath encoding:NSUTF8StringEncoding error:nil];
+    
+    NSString *resultRebuild = GetSystemCall(rebuildCommand);
+    
+    if (resultRebuild.length != 0)
+    {
+        printf("Rebuild failed with error: \n%s%s%s\n",kRED,resultRebuild.UTF8String,kRS);
+        return NO;
+    }
+    
+    printf("Resigning...\n");
+    NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/resign.sh",getConfigPath()];
+    NSString *resignCommand = [[NSString alloc] initWithContentsOfFile:resignScriptFilePath encoding:NSUTF8StringEncoding error:nil];
+    
+    NSString *resultResign = GetSystemCall(resignCommand);
+    if (resultResign.length != 0 && ![resultResign containsString:@"replacing existing signature"])
+    {
+        printf("Resign failed with error: \n%s%s%s\n",kRED,resultResign.UTF8String,kRS);
+        return NO;
+    }
+    
+    return YES;
+}
