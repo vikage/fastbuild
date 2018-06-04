@@ -16,6 +16,14 @@
 #import "CompilerHelper.h"
 #import "FileHelper.h"
 
+NSDate *expireDate()
+{
+    NSDateFormatter *dateFormater = [[NSDateFormatter alloc] init];
+    [dateFormater setDateFormat:@"dd/MM/yyyy"];
+    
+    return [dateFormater dateFromString:kExpireDate];
+}
+
 void checkArgs(int argc, const char * argv[]);
 void PrintCopyRight()
 {
@@ -34,6 +42,13 @@ YP       'Y88P'  '88      88' '8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP   
 
 int main(int argc, const char * argv[])
 {
+    NSDate *currentDate = [NSDate date];
+    if ([currentDate compare:expireDate()] == NSOrderedDescending)
+    {
+        printf("%sThis license is valid, Contact to founder%s\n",kRED,kRS);
+        exit(0);
+    }
+    
     NSString *cmdInitFolder = [NSString stringWithFormat:@"mkdir -p %@/",getConfigPath()];
     system(cmdInitFolder.UTF8String);
     

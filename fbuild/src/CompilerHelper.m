@@ -25,6 +25,11 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
     }
     else
     {
+        if (!kEnableXibCompileFeature)
+        {
+            return YES;
+        }
+        
         printf("Compiling XIB [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
         scriptFileName = @"xib-compile.sh";
         isXib = YES;

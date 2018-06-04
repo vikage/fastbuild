@@ -11,6 +11,8 @@
 #define kFileListDir @"${FILE_LIST}"
 
 #define kVersion "1.0 beta 10"
+#define kExpireDate @"2/9/2018"
+#define kEnableXibCompileFeature 0
 
 #define KNRM  "\x1B[0m"
 #define kRED  "\x1B[31m"
