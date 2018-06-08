@@ -10,14 +10,16 @@
 #import <Foundation/Foundation.h>
 #include "Config.h"
 #include "Utils.h"
+#include "FileHelper.h"
+#include "ConfigHelper.h"
 
-void initConfigFile()
+void initConfigFile(NSString *configName)
 {
     NSString *configDir = getConfigPath();
-    NSString *objcBuildConfigFile = [NSString stringWithFormat:@"%@/objc-build.sh",configDir];
-    NSString *swiftBuildConfigFile = [NSString stringWithFormat:@"%@/swift-build.sh",configDir];
-    NSString *rebuildConfigFile = [NSString stringWithFormat:@"%@/rebuild.sh",configDir];
-    NSString *resignConfigFile = [NSString stringWithFormat:@"%@/resign.sh",configDir];
+    NSString *objcBuildConfigFile = [NSString stringWithFormat:@"%@/%@/objc-build.sh",configDir, configName];
+    NSString *swiftBuildConfigFile = [NSString stringWithFormat:@"%@/%@/swift-build.sh",configDir,configName];
+    NSString *rebuildConfigFile = [NSString stringWithFormat:@"%@/%@/rebuild.sh",configDir,configName];
+    NSString *resignConfigFile = [NSString stringWithFormat:@"%@/%@/resign.sh",configDir,configName];
     
     GetSystemCall([NSString stringWithFormat:@"mkdir -p %@",configDir]);
     GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",objcBuildConfigFile]);
@@ -26,9 +28,9 @@ void initConfigFile()
     GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",resignConfigFile]);
 }
 
-void autoConfig(NSString *name)
+void autoConfig(NSString *name, NSString *configName)
 {
-    initConfigFile();
+    initConfigFile(configName);
     printf("Auto config %s project\n",name.UTF8String);
     NSString *derivedDataPath = [NSString stringWithFormat:@"%@/Library/Developer/Xcode/DerivedData",GetHomeDir()];
     NSString *cmd = [NSString stringWithFormat:@"ls -t %@ | grep '%@' | head -1",derivedDataPath,name];
@@ -62,15 +64,42 @@ void autoConfig(NSString *name)
     NSString *logContent = GetSystemCall(cmdGetLogContent);
     logContent = [logContent stringByReplacingOccurrencesOfString:@"36\"" withString:@"\n"];
     
-    getSwiftBuildConfigFromLogContent(logContent);
-    getObjcBuildConfigFromLogContent(logContent);
-    getLinkingConfigFromLogContent(logContent);
-    getXibConfigFromLogContent(logContent);
+    NSString *cmdCreateDir = [NSString stringWithFormat:@"mkdir -p %@/%@",getConfigPath(),configName];
+    GetSystemCall(cmdCreateDir);
     
-    printf("Config done\n");
+    getSwiftBuildConfigFromLogContent(logContent, configName);
+    getObjcBuildConfigFromLogContent(logContent, configName);
+    getLinkingConfigFromLogContent(logContent, configName);
+    getXibConfigFromLogContent(logContent, configName);
+    
+    NSDictionary *currentConfig = getAppConfig();
+    NSMutableDictionary *newConfig = [[NSMutableDictionary alloc] initWithDictionary:currentConfig];
+    NSMutableArray *listConfig = [NSMutableArray arrayWithArray:[newConfig objectForKey:kConfigs]];
+    
+    if (![listConfig containsObject:configName])
+    {
+        [listConfig addObject:configName];
+        
+        if (listConfig.count == 1)
+        {
+            [newConfig setObject:configName forKey:kCurrentConfig];
+        }
+        
+        [newConfig setObject:listConfig forKey:kConfigs];
+    }
+    
+    BOOL writeConfigResult = writeConfig(newConfig);
+    if (writeConfigResult)
+    {
+        printf("Config done\n");
+    }
+    else
+    {
+        printf("%sWrite config '%s' fail%s\n",kRED,configName.UTF8String,kRS);
+    }
 }
 
-void getSwiftBuildConfigFromLogContent(NSString *logContent)
+void getSwiftBuildConfigFromLogContent(NSString *logContent, NSString *configName)
 {
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^.*swift -frontend[^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
     NSArray *matchResults = [regex matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
@@ -138,7 +167,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent)
     }
 }
 
-void getObjcBuildConfigFromLogContent(NSString *logContent)
+void getObjcBuildConfigFromLogContent(NSString *logContent, NSString *configName)
 {
     NSRegularExpression *regexGetLinking = [NSRegularExpression regularExpressionWithPattern:@"^.*\\/clang [^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
     NSArray *resultMatching = [regexGetLinking matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
@@ -185,7 +214,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
                 [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-c ${FILEPATH}"];
                 [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
                 
-                NSString *scriptFilePath = [NSString stringWithFormat:@"%@/objc-build.sh",getConfigPath()];
+                NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@/objc-build.sh",getConfigPath(),configName];
                 BOOL writeResult = [finalTargetCmd writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
                 
                 if (writeResult)
@@ -197,7 +226,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent)
     }
 }
 
-void getLinkingConfigFromLogContent(NSString *logContent)
+void getLinkingConfigFromLogContent(NSString *logContent, NSString *configName)
 {
     NSRegularExpression *regexGetLinking = [NSRegularExpression regularExpressionWithPattern:@"^.*\\/clang [^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
     NSArray *resultMatching = [regexGetLinking matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
@@ -228,7 +257,7 @@ void getLinkingConfigFromLogContent(NSString *logContent)
                 codeSignCommand = [logContent substringWithRange:codeSignLastMatch.range];
                 codeSignCommand = [codeSignCommand stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
                 
-                NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/resign.sh",getConfigPath()];
+                NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/%@/resign.sh",getConfigPath(), configName];
                 BOOL writeResult = [codeSignCommand writeToFile:resignScriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
                 
                 if (writeResult)
@@ -237,7 +266,7 @@ void getLinkingConfigFromLogContent(NSString *logContent)
                 }
             }
             
-            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/rebuild.sh",getConfigPath()];
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@/rebuild.sh",getConfigPath(),configName];
             BOOL writeResult = [linkingCommand writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
             
             if (writeResult)
@@ -248,7 +277,7 @@ void getLinkingConfigFromLogContent(NSString *logContent)
     }
 }
 
-void getXibConfigFromLogContent(NSString *logContent)
+void getXibConfigFromLogContent(NSString *logContent, NSString *configName)
 {
     NSRegularExpression *regexGetXibCompile = [NSRegularExpression regularExpressionWithPattern:@"^.*\\/ibtool [^\\n]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
     NSArray *resultMatching = [regexGetXibCompile matchesInString:logContent options:NSMatchingReportCompletion range:NSMakeRange(0, logContent.length)];
@@ -284,13 +313,35 @@ void getXibConfigFromLogContent(NSString *logContent)
             [finalCompileXibCommand replaceCharactersInRange:[fileNameMatchResult rangeAtIndex:1] withString:@"${FILEPATH}"];
             [finalCompileXibCommand replaceOccurrencesOfString:fileName withString:@"${FILENAME}" options:0 range:NSMakeRange(0, finalCompileXibCommand.length)];
             
-            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/xib-compile.sh",getConfigPath()];
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@/xib-compile.sh",getConfigPath(),configName];
             BOOL writeResult = [finalCompileXibCommand writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
             
             if (writeResult)
             {
                 printf("%sWritten xib-compile config%s\n",KGRN,kRS);
             }
+        }
+    }
+}
+
+
+void printListConfig()
+{
+    NSDictionary *config = getAppConfig();
+    NSString *currentConfig = [config objectForKey:kCurrentConfig];
+    NSArray *listConfig = [config objectForKey:kConfigs];
+    
+    printf("List config: \n");
+    
+    for (NSString *configName in listConfig)
+    {
+        if ([configName isEqualToString:currentConfig])
+        {
+            printf("%s* %s%s\n",KGRN,configName.UTF8String,kRS);
+        }
+        else
+        {
+            printf("  %s\n",configName.UTF8String);
         }
     }
 }

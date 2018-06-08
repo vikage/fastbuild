@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0445575F20BF965C00B47D22 /* install in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0445575E20BF95B800B47D22 /* install */; };
+		04D4A69A20CA0C8500190A07 /* ConfigHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D4A69820CA0C8500190A07 /* ConfigHelper.m */; };
 		04F98A3520C287B10077657F /* CompilerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F98A3420C287B10077657F /* CompilerHelper.m */; };
 		04F98A3820C287C10077657F /* AutoConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F98A3720C287C10077657F /* AutoConfig.m */; };
 		04F98A3A20C288360077657F /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 04F98A3920C288360077657F /* Utils.m */; };
@@ -30,6 +31,8 @@
 
 /* Begin PBXFileReference section */
 		0445575E20BF95B800B47D22 /* install */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install; sourceTree = "<group>"; };
+		04D4A69820CA0C8500190A07 /* ConfigHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfigHelper.m; sourceTree = "<group>"; };
+		04D4A69920CA0C8500190A07 /* ConfigHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfigHelper.h; sourceTree = "<group>"; };
 		04F98A2D20C267140077657F /* fux.pkg */ = {isa = PBXFileReference; lastKnownFileType = file; path = fux.pkg; sourceTree = "<group>"; };
 		04F98A2F20C267150077657F /* fux.pkgproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = fux.pkgproj; sourceTree = "<group>"; };
 		04F98A3020C267150077657F /* license-en.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "license-en.txt"; sourceTree = "<group>"; };
@@ -93,6 +96,8 @@
 				04F98A3B20C2883F0077657F /* Utils.h */,
 				04F98A3C20C2897C0077657F /* FileHelper.h */,
 				04F98A3D20C289830077657F /* FileHelper.m */,
+				04D4A69920CA0C8500190A07 /* ConfigHelper.h */,
+				04D4A69820CA0C8500190A07 /* ConfigHelper.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -187,7 +192,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p ${TARGET_BUILD_DIR}/bin/\ncp ${TARGET_BUILD_DIR}/fbuild ${TARGET_BUILD_DIR}/bin/fux\ncp ${TARGET_BUILD_DIR}/fbuild ${SRCROOT}/installer/fux\n#pkgbuild --install-location /usr/local/bin --root ${TARGET_BUILD_DIR}/bin --identifier com.thanhdev.fux --version 1.0 ${TARGET_BUILD_DIR}/fux.pkg";
+			shellScript = "mkdir -p ${TARGET_BUILD_DIR}/bin/\ncp ${TARGET_BUILD_DIR}/fbuild ${TARGET_BUILD_DIR}/bin/fux\ncp ${TARGET_BUILD_DIR}/fbuild ${SRCROOT}/installer/fux\nupx ${SRCROOT}/installer/fux || true\n#pkgbuild --install-location /usr/local/bin --root ${TARGET_BUILD_DIR}/bin --identifier com.thanhdev.fux --version 1.0 ${TARGET_BUILD_DIR}/fux.pkg";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -199,6 +204,7 @@
 				04F98A3E20C289830077657F /* FileHelper.m in Sources */,
 				04F98A3520C287B10077657F /* CompilerHelper.m in Sources */,
 				04F98A3820C287C10077657F /* AutoConfig.m in Sources */,
+				04D4A69A20CA0C8500190A07 /* ConfigHelper.m in Sources */,
 				F2693FAC20BA925A00E4D79B /* main.m in Sources */,
 				04F98A3A20C288360077657F /* Utils.m in Sources */,
 			);

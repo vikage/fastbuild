@@ -8,9 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-void initConfigFile(void);
-void autoConfig(NSString *name);
-void getSwiftBuildConfigFromLogContent(NSString *logContent);
-void getObjcBuildConfigFromLogContent(NSString *logContent);
-void getLinkingConfigFromLogContent(NSString *logContent);
-void getXibConfigFromLogContent(NSString *logContent);
+void initConfigFile(NSString *configName);
+void autoConfig(NSString *name, NSString *configName);
+void getSwiftBuildConfigFromLogContent(NSString *logContent, NSString *configName);
+void getObjcBuildConfigFromLogContent(NSString *logContent, NSString *configName);
+void getLinkingConfigFromLogContent(NSString *logContent, NSString *configName);
+void getXibConfigFromLogContent(NSString *logContent, NSString *configName);
+void printListConfig(void);

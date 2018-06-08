@@ -10,6 +10,7 @@
 #include "Utils.h"
 #include "AutoConfig.h"
 #include "FileHelper.h"
+#include "ConfigHelper.h"
 BOOL compileFile(NSString *filePath,NSString *fileName)
 {
     BOOL isXib = NO;
@@ -35,7 +36,8 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
         isXib = YES;
     }
     
-    NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@",getConfigPath(),scriptFileName];
+    NSString *currentConfig = getCurrentConfig();
+    NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@/%@",getConfigPath(),currentConfig,scriptFileName];
     NSString *compileCommand = [[NSString alloc] initWithContentsOfFile:scriptFilePath encoding:NSUTF8StringEncoding error:nil];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileName withString:fileName];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
@@ -64,8 +66,10 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
 
 BOOL reBuildBinary()
 {
+    NSString *currentConfig = getCurrentConfig();
+    
     printf("Rebuilding...\n");
-    NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/rebuild.sh",getConfigPath()];
+    NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/%@/rebuild.sh",getConfigPath(),currentConfig];
     NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:rebuildScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
     NSString *resultRebuild = GetSystemCall(rebuildCommand);
@@ -77,7 +81,7 @@ BOOL reBuildBinary()
     }
     
     printf("Resigning...\n");
-    NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/resign.sh",getConfigPath()];
+    NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/%@/resign.sh",getConfigPath(),currentConfig];
     NSString *resignCommand = [[NSString alloc] initWithContentsOfFile:resignScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
     NSString *resultResign = GetSystemCall(resignCommand);
@@ -92,6 +96,7 @@ BOOL reBuildBinary()
 
 void compileAllModifiedFile()
 {
+    printf("%sCompile all modified file follow config '%s'%s\n",KGRN,getCurrentConfig().UTF8String,kRS);
     NSArray *listFileNameModified = getListFileModified();
     
     BOOL errorWhenCompile = NO;

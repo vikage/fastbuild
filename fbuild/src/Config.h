@@ -10,7 +10,7 @@
 #define kFileName @"${FILENAME}"
 #define kFileListDir @"${FILE_LIST}"
 
-#define kVersion "1.0 beta 10"
+#define kVersion "1.0 beta 11"
 #define kExpireDate @"2/9/2018"
 #define kEnableXibCompileFeature 0
 
@@ -23,3 +23,6 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 #define kRS   "\x1B[0m"
+
+#define kConfigs @"ListConfig"
+#define kCurrentConfig @"CurrentConfig"

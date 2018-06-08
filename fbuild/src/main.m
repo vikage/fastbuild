@@ -15,6 +15,7 @@
 #import "AutoConfig.h"
 #import "CompilerHelper.h"
 #import "FileHelper.h"
+#import "ConfigHelper.h"
 
 NSDate *expireDate()
 {
@@ -73,18 +74,13 @@ void checkArgs(int argc, const char * argv[])
     if (argc >= 2)
     {
         NSString *param2 = [NSString stringWithUTF8String:argv[1]];
-        if ([param2 isEqualToString:@"init"])
-        {
-            initConfigFile();
-            
-            exit(0);
-        }
         
-        if ([param2 isEqualToString:@"config"] && argc >= 3)
+        if ([param2 isEqualToString:@"config"] && argc >= 4)
         {
             NSString *projectName = [NSString stringWithUTF8String:argv[2]];
+            NSString *configName = [NSString stringWithUTF8String:argv[3]];
             
-            autoConfig(projectName);
+            autoConfig(projectName, configName);
             
             exit(0);
         }
@@ -98,6 +94,29 @@ void checkArgs(int argc, const char * argv[])
         if ([param2 isEqualToString:@"all"])
         {
             compileAllSourceAndRebuild();
+            exit(0);
+        }
+        
+        if ([param2 isEqualToString:@"list"])
+        {
+            printListConfig();
+            exit(0);
+        }
+        
+        if ([param2 isEqualToString:@"set"] && argc >= 3)
+        {
+            NSString *configName = [NSString stringWithUTF8String:argv[2]];
+            setCurrentConfig(configName);
+            exit(0);
+        }
+        
+        if ([param2 isEqualToString:@"help"])
+        {
+            NSString *helpString = @""
+            "Config:        fux config <project name> <config name>\n"
+            "List config:   fux list\n"
+            "Set config:    fux set <config name>\n";
+            printf("%s%s%s",KMAG,helpString.UTF8String,kRS);
             exit(0);
         }
     }
