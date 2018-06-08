@@ -96,7 +96,15 @@ BOOL reBuildBinary()
 
 void compileAllModifiedFile()
 {
-    printf("%sCompile all modified file follow config '%s'%s\n",KGRN,getCurrentConfig().UTF8String,kRS);
+    NSString *currentConfig = getCurrentConfig();
+    
+    if (!currentConfig)
+    {
+        printf("%sNot found current config, Please config and try again. 'fux help' for help solve problem%s\n",kRED,kRS);
+        exit(0);
+    }
+    
+    printf("%sCompile all modified file follow config '%s'%s\n",KGRN,currentConfig.UTF8String,kRS);
     NSArray *listFileNameModified = getListFileModified();
     
     BOOL errorWhenCompile = NO;

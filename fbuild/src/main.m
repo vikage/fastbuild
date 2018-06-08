@@ -75,8 +75,14 @@ void checkArgs(int argc, const char * argv[])
     {
         NSString *param2 = [NSString stringWithUTF8String:argv[1]];
         
-        if ([param2 isEqualToString:@"config"] && argc >= 4)
+        if ([param2 isEqualToString:@"config"])
         {
+            if (argc < 4)
+            {
+                printf("%sConfig require project name and config name%s\n",kRED,kRS);
+                exit(0);
+            }
+            
             NSString *projectName = [NSString stringWithUTF8String:argv[2]];
             NSString *configName = [NSString stringWithUTF8String:argv[3]];
             
