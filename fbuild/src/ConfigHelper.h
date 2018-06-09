@@ -12,3 +12,4 @@ NSDictionary *getAppConfig(void);
 BOOL writeConfig(NSDictionary *config);
 NSString *getCurrentConfig(void);
 void setCurrentConfig(NSString *configName);
+void removeConfig(NSString *configName);

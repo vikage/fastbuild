@@ -1,7 +1,8 @@
 d88888b	88     88    '88      88' 
 88'		88     88      '88 88'   
 88ooo	88     88        '88'     		Version 1.0 
-88		88     88        '88'     		beta 12
+88		88     88        '88'     		beta 13
 88		88     88      '88 88'   
 YP		 'Y88P'      '88      88' 
 
+BIG UPDATE From beta 13: Support XIB Compile

@@ -43,11 +43,14 @@ YP       'Y88P'  '88      88' '8888Y'  `Y88P'   `Y88P' Y888888P Y88888P    YP   
 
 int main(int argc, const char * argv[])
 {
-    NSDate *currentDate = [NSDate date];
-    if ([currentDate compare:expireDate()] == NSOrderedDescending)
+    if (kCheckExpireDate)
     {
-        printf("%sThis license is valid, Contact to founder%s\n",kRED,kRS);
-        exit(0);
+        NSDate *currentDate = [NSDate date];
+        if ([currentDate compare:expireDate()] == NSOrderedDescending)
+        {
+            printf("%sThis license is valid, Contact to founder%s\n",kRED,kRS);
+            exit(0);
+        }
     }
     
     NSString *cmdInitFolder = [NSString stringWithFormat:@"mkdir -p %@/",getConfigPath()];
@@ -116,12 +119,25 @@ void checkArgs(int argc, const char * argv[])
             exit(0);
         }
         
+        if ([param2 isEqualToString:@"rm"])
+        {
+            if (argc < 3)
+            {
+                printf("%sRemove config require config name%s\n",kRED,kRS);
+            }
+            
+            NSString *configName = [NSString stringWithUTF8String:argv[2]];
+            removeConfig(configName);
+            exit(0);
+        }
+        
         if ([param2 isEqualToString:@"help"])
         {
             NSString *helpString = @""
             "Config:        fux config <project name> <config name>\n"
             "List config:   fux list\n"
-            "Set config:    fux set <config name>\n";
+            "Set config:    fux set <config name>\n"
+            "Remove config: fux rm <config name>\n";
             printf("%s%s%s",KMAG,helpString.UTF8String,kRS);
             exit(0);
         }
