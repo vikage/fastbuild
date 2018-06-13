@@ -22,10 +22,10 @@ void initConfigFile(NSString *configName)
     NSString *resignConfigFile = [NSString stringWithFormat:@"%@/%@/resign.sh",configDir,configName];
     
     GetSystemCall([NSString stringWithFormat:@"mkdir -p %@",configDir]);
-    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",objcBuildConfigFile]);
-    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",swiftBuildConfigFile]);
-    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",rebuildConfigFile]);
-    GetSystemCall([NSString stringWithFormat:@"rm -f %1$@;touch %1$@",resignConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"touch %1$@",objcBuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"touch %1$@",swiftBuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"touch %1$@",rebuildConfigFile]);
+    GetSystemCall([NSString stringWithFormat:@"touch %1$@",resignConfigFile]);
 }
 
 void autoConfig(NSString *name, NSString *configName)
@@ -148,7 +148,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent, NSString *configNam
             NSRegularExpression *regexReplaceListFile = [NSRegularExpression regularExpressionWithPattern:@"-filelist [a-z0-9\\/\\-_]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
             [regexReplaceListFile replaceMatchesInString:finalTargetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, finalTargetCmd.length) withTemplate:@"-filelist ${FILE_LIST}"];
             
-            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/swift-build.sh",getConfigPath()];
+            NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@/swift-build.sh",getConfigPath(),configName];
             BOOL writeResult = [finalTargetCmd writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
             
             if (writeResult)

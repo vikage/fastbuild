@@ -20,7 +20,7 @@ NSArray *getAllFileSourceObjc()
 
 NSString *getAllFileSourceSwift()
 {
-    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.swift\" | grep -v 'Test'| grep -v 'Pods'",currentDIR];
+    NSString *cmd = [NSString stringWithFormat:@"find %@ -name \"*.swift\" | grep -v 'Test'| grep -v 'Pods' | grep -v 'Carthage'",currentDIR];
     NSString *response = GetSystemCall(cmd);
     
     return response;
