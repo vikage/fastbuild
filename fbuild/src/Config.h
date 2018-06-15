@@ -13,7 +13,7 @@
 #define kVersion "1.0 beta 15"
 #define kExpireDate @"29/11/2018"
 #define kCheckExpireDate 0
-#define kEnableXibCompileFeature 1
+#define kEnableXibCompileFeature 0
 
 #define KNRM  "\x1B[0m"
 #define kRED  "\x1B[31m"

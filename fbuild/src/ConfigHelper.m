@@ -52,11 +52,11 @@ void setCurrentConfig(NSString *configName)
     BOOL writeConfigResult = writeConfig(newConfig);
     if (writeConfigResult)
     {
-        printf("Set current config '%s' done\n",configName.UTF8String);
+        print("Set current config '%s' done\n",configName.UTF8String);
     }
     else
     {
-        printf("%sSet config '%s' fail%s\n",kRED,configName.UTF8String,kRS);
+        print("%sSet config '%s' fail%s\n",kRED,configName.UTF8String,kRS);
     }
 }
 
@@ -70,7 +70,7 @@ void removeConfig(NSString *configName)
     
     if (![listConfig containsObject:configName])
     {
-        printf("%sConfig '%s' not found%s\n",kRED,configName.UTF8String,kRS);
+        print("%sConfig '%s' not found%s\n",kRED,configName.UTF8String,kRS);
         exit(0);
     }
     
@@ -81,7 +81,7 @@ void removeConfig(NSString *configName)
         if (newCurrentConfig)
         {
             [newConfig setObject:newCurrentConfig forKey:kCurrentConfig];
-            printf("%sCurrent config is replace to '%s'%s\n",KMAG,newCurrentConfig.UTF8String,kRS);
+            print("%sCurrent config is replace to '%s'%s\n",KMAG,newCurrentConfig.UTF8String,kRS);
         }
     }
     else
@@ -93,17 +93,17 @@ void removeConfig(NSString *configName)
     NSString * removeConfigFolderResult = GetSystemCall(cmdRemoveConfigFolder);
     if (removeConfigFolderResult.length)
     {
-        printf("%sRemove dir of config '%s' failure, discard all change.%s\n",kRED,configName.UTF8String,kRS);
+        print("%sRemove dir of config '%s' failure, discard all change.%s\n",kRED,configName.UTF8String,kRS);
     }
     
     [newConfig setObject:listConfig forKey:kConfigs];
     BOOL writeConfigResult = writeConfig(newConfig);
     if (writeConfigResult)
     {
-        printf("%sRemove '%s' config done.%s\n",KGRN,configName.UTF8String,kRS);
+        print("%sRemove '%s' config done.%s\n",KGRN,configName.UTF8String,kRS);
     }
     else
     {
-        printf("%sWrite new config failed, discard all change.%s\n",kRED,kRS);
+        print("%sWrite new config failed, discard all change.%s\n",kRED,kRS);
     }
 }

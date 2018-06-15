@@ -12,3 +12,4 @@ NSString * GetSystemCall(NSString *cmd);
 NSString *GetHomeDir(void);
 NSString *getConfigPath(void);
 NSString *GetFileNameFromFilePath(NSString *filePath);
+void print(const char * __restrict format, ...);

@@ -18,7 +18,7 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
     if ([filePath hasSuffix:@".swift"] ||
         [filePath hasSuffix:@".m"])
     {
-        printf("Compiling [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
+        print("Compiling [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
         if ([filePath hasSuffix:@"swift"])
         {
             scriptFileName = @"swift-build.sh";
@@ -31,7 +31,7 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
             return YES;
         }
         
-        printf("Compiling XIB [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
+        print("Compiling XIB [%s%s%s]\n",KMAG,fileName.UTF8String,kRS);
         scriptFileName = @"xib-compile.sh";
         isXib = YES;
     }
@@ -49,18 +49,18 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
     {
         if (isXib)
         {
-            printf("Compiled XIB [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
+            print("Compiled XIB [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
         }
         else
         {
-            printf("Compiled [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
+            print("Compiled [%s%s%s]\n",KGRN,fileName.UTF8String,kRS);
         }
         
         GetSystemCall([NSString stringWithFormat:@"git add %@",filePath]);
         return YES;
     }
     
-    printf("Error occurred while compile file: [%s%s%s] at path: [%s%s%s], Error: %s\n\n",kRED,fileName.UTF8String,kRS, kRED, filePath.UTF8String,kRS, compileResult.UTF8String);
+    print("Error occurred while compile file: [%s%s%s] at path: [%s%s%s], Error: %s\n\n",kRED,fileName.UTF8String,kRS, kRED, filePath.UTF8String,kRS, compileResult.UTF8String);
     return NO;
 }
 
@@ -68,7 +68,7 @@ BOOL reBuildBinary()
 {
     NSString *currentConfig = getCurrentConfig();
     
-    printf("Rebuilding...\n");
+    print("Rebuilding...\n");
     NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/%@/rebuild.sh",getConfigPath(),currentConfig];
     NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:rebuildScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
@@ -76,18 +76,18 @@ BOOL reBuildBinary()
     
     if (resultRebuild.length != 0)
     {
-        printf("Rebuild failed with error: \n%s%s%s\n",kRED,resultRebuild.UTF8String,kRS);
+        print("Rebuild failed with error: \n%s%s%s\n",kRED,resultRebuild.UTF8String,kRS);
         return NO;
     }
     
-    printf("Resigning...\n");
+    print("Resigning...\n");
     NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/%@/resign.sh",getConfigPath(),currentConfig];
     NSString *resignCommand = [[NSString alloc] initWithContentsOfFile:resignScriptFilePath encoding:NSUTF8StringEncoding error:nil];
     
     NSString *resultResign = GetSystemCall(resignCommand);
     if (resultResign.length != 0 && ![resultResign containsString:@"replacing existing signature"])
     {
-        printf("Resign failed with error: \n%s%s%s\n",kRED,resultResign.UTF8String,kRS);
+        print("Resign failed with error: \n%s%s%s\n",kRED,resultResign.UTF8String,kRS);
         return NO;
     }
     
@@ -100,11 +100,11 @@ void compileAllModifiedFile()
     
     if (!currentConfig)
     {
-        printf("%sNot found current config, Please config and try again. 'fux help' for help solve problem%s\n",kRED,kRS);
+        print("%sNot found current config, Please config and try again. 'fux help' for help solve problem%s\n",kRED,kRS);
         exit(0);
     }
     
-    printf("%sCompile all modified file follow config '%s'%s\n",KGRN,currentConfig.UTF8String,kRS);
+    print("%sCompile all modified file follow config '%s'%s\n",KGRN,currentConfig.UTF8String,kRS);
     NSArray *listFileNameModified = getListFileModified();
     
     BOOL errorWhenCompile = NO;
@@ -131,14 +131,14 @@ void compileAllModifiedFile()
     
     if (errorWhenCompile)
     {
-        printf("%sCompile queue pause cause error occurred, Please fix code and retry!%s\n",KWHT,kRS);
+        print("%sCompile queue pause cause error occurred, Please fix code and retry!%s\n",KWHT,kRS);
         exit(0);
     }
     
     BOOL result = reBuildBinary();
     if (result)
     {
-        printf("Done\n");
+        print("Done\n");
     }
 }
 
@@ -172,6 +172,6 @@ void compileAllSourceAndRebuild(void)
     BOOL resultBuildAndResign = reBuildBinary();
     if (resultBuildAndResign == YES)
     {
-        printf("Done\n");
+        print("Done\n");
     }
 }

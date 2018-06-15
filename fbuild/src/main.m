@@ -48,7 +48,7 @@ int main(int argc, const char * argv[])
         NSDate *currentDate = [NSDate date];
         if ([currentDate compare:expireDate()] == NSOrderedDescending)
         {
-            printf("%sThis license is valid, Contact to founder%s\n",kRED,kRS);
+            print("%sThis license is valid, Contact to founder%s\n",kRED,kRS);
             exit(0);
         }
     }
@@ -64,7 +64,7 @@ int main(int argc, const char * argv[])
     
     PrintCopyRight();
 //    autoConfig(@"DemoCompile");
-    printf("[ENV] %s\n",currentDIR.UTF8String);
+    print("[ENV] %s\n",currentDIR.UTF8String);
     checkArgs(argc, argv);
     writeListFileSwift();
     compileAllModifiedFile();
@@ -82,7 +82,7 @@ void checkArgs(int argc, const char * argv[])
         {
             if (argc < 4)
             {
-                printf("%sConfig require project name and config name%s\n",kRED,kRS);
+                print("%sConfig require project name and config name%s\n",kRED,kRS);
                 exit(0);
             }
             
@@ -96,7 +96,7 @@ void checkArgs(int argc, const char * argv[])
         
         if ([param2 isEqualToString:@"version"])
         {
-            printf("%s\n",kVersion);
+            print("%s\n",kVersion);
             exit(0);
         }
         
@@ -123,7 +123,7 @@ void checkArgs(int argc, const char * argv[])
         {
             if (argc < 3)
             {
-                printf("%sRemove config require config name%s\n",kRED,kRS);
+                print("%sRemove config require config name%s\n",kRED,kRS);
             }
             
             NSString *configName = [NSString stringWithUTF8String:argv[2]];
@@ -138,7 +138,7 @@ void checkArgs(int argc, const char * argv[])
             "List config:   fux list\n"
             "Set config:    fux set <config name>\n"
             "Remove config: fux rm <config name>\n";
-            printf("%s%s%s",KMAG,helpString.UTF8String,kRS);
+            print("%s%s%s",KMAG,helpString.UTF8String,kRS);
             exit(0);
         }
     }

@@ -31,7 +31,7 @@ void initConfigFile(NSString *configName)
 void autoConfig(NSString *name, NSString *configName)
 {
     initConfigFile(configName);
-    printf("Auto config %s project\n",name.UTF8String);
+    print("Auto config %s project\n",name.UTF8String);
     NSString *derivedDataPath = [NSString stringWithFormat:@"%@/Library/Developer/Xcode/DerivedData",GetHomeDir()];
     NSString *cmd = [NSString stringWithFormat:@"ls -t %@ | grep '%@' | head -1",derivedDataPath,name];
     
@@ -39,7 +39,7 @@ void autoConfig(NSString *name, NSString *configName)
     
     if (output.length == 0)
     {
-        printf("%sCan not found '%s' project derivedData, please correct project name%s\n",kRED,name.UTF8String,kRS);
+        print("%sCan not found '%s' project derivedData, please correct project name%s\n",kRED,name.UTF8String,kRS);
         
         exit(0);
     }
@@ -53,7 +53,7 @@ void autoConfig(NSString *name, NSString *configName)
     
     if (lastestLogFileName.length == 0)
     {
-        printf("%sCan not found build log for '%s' project, please rebuild once and try again%s\n",kRED,name.UTF8String,kRS);
+        print("%sCan not found build log for '%s' project, please rebuild once and try again%s\n",kRED,name.UTF8String,kRS);
         
         exit(0);
     }
@@ -91,11 +91,11 @@ void autoConfig(NSString *name, NSString *configName)
     BOOL writeConfigResult = writeConfig(newConfig);
     if (writeConfigResult)
     {
-        printf("Config done\n");
+        print("Config done\n");
     }
     else
     {
-        printf("%sWrite config '%s' fail%s\n",kRED,configName.UTF8String,kRS);
+        print("%sWrite config '%s' fail%s\n",kRED,configName.UTF8String,kRS);
     }
 }
 
@@ -127,7 +127,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent, NSString *configNam
     {
         if (![targetCmd containsString:@"-filelist"])
         {
-            printf("%sfux only used to project with over 128 source file swift%s\n",kRED,kRS);
+            print("%sfux only used to project with over 128 source file swift%s\n",kRED,kRS);
             exit(0);
         }
         
@@ -153,17 +153,17 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent, NSString *configNam
             
             if (writeResult)
             {
-                printf("%sWritten swift build config%s\n",KGRN,kRS);
+                print("%sWritten swift build config%s\n",KGRN,kRS);
             }
         }
         else
         {
-            printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",kRED,kRS);
+            print("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",kRED,kRS);
         }
     }
     else
     {
-        printf("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",kRED,kRS);
+        print("%sCan not found swift config. If you using swift project, edit any swift file then build (⌘ + B) and try again. If not ignore this message%s\n",kRED,kRS);
     }
 }
 
@@ -219,7 +219,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent, NSString *configName
                 
                 if (writeResult)
                 {
-                    printf("%sWritten objc build config%s\n",KGRN,kRS);
+                    print("%sWritten objc build config%s\n",KGRN,kRS);
                 }
             }
         }
@@ -262,7 +262,7 @@ void getLinkingConfigFromLogContent(NSString *logContent, NSString *configName)
                 
                 if (writeResult)
                 {
-                    printf("%sWritten resign build config%s\n",KGRN,kRS);
+                    print("%sWritten resign build config%s\n",KGRN,kRS);
                 }
             }
             
@@ -271,7 +271,7 @@ void getLinkingConfigFromLogContent(NSString *logContent, NSString *configName)
             
             if (writeResult)
             {
-                printf("%sWritten relink build config%s\n",KGRN,kRS);
+                print("%sWritten relink build config%s\n",KGRN,kRS);
             }
         }
     }
@@ -318,7 +318,7 @@ void getXibConfigFromLogContent(NSString *logContent, NSString *configName)
             
             if (writeResult)
             {
-                printf("%sWritten xib-compile config%s\n",KGRN,kRS);
+                print("%sWritten xib-compile config%s\n",KGRN,kRS);
             }
         }
     }
@@ -331,17 +331,17 @@ void printListConfig()
     NSString *currentConfig = [config objectForKey:kCurrentConfig];
     NSArray *listConfig = [config objectForKey:kConfigs];
     
-    printf("List config: \n");
+    print("List config: \n");
     
     for (NSString *configName in listConfig)
     {
         if ([configName isEqualToString:currentConfig])
         {
-            printf("%s* %s%s\n",KGRN,configName.UTF8String,kRS);
+            print("%s* %s%s\n",KGRN,configName.UTF8String,kRS);
         }
         else
         {
-            printf("  %s\n",configName.UTF8String);
+            print("  %s\n",configName.UTF8String);
         }
     }
 }

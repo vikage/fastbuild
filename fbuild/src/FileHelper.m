@@ -49,7 +49,7 @@ void writeListFileSwift()
     BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
     if (writeResult)
     {
-        printf("%sWritten list file%s\n",KGRN,kRS);
+        print("%sWritten list file%s\n",KGRN,kRS);
     }
 }
 
