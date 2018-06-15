@@ -144,6 +144,7 @@ void getSwiftBuildConfigFromLogContent(NSString *logContent, NSString *configNam
             NSMutableString *finalTargetCmd = [[NSMutableString alloc] initWithString:targetCmd];
             [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-primary-file ${FILEPATH}"];
             [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
+            [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"~"] withString:@"${FILENAME}~" options:0 range:NSMakeRange(0, finalTargetCmd.length)];
             
             NSRegularExpression *regexReplaceListFile = [NSRegularExpression regularExpressionWithPattern:@"-filelist [a-z0-9\\/\\-_]+" options:(NSRegularExpressionCaseInsensitive|NSRegularExpressionAnchorsMatchLines) error:nil];
             [regexReplaceListFile replaceMatchesInString:finalTargetCmd options:NSMatchingReportCompletion range:NSMakeRange(0, finalTargetCmd.length) withTemplate:@"-filelist ${FILE_LIST}"];
@@ -213,6 +214,7 @@ void getObjcBuildConfigFromLogContent(NSString *logContent, NSString *configName
                 NSMutableString *finalTargetCmd = [[NSMutableString alloc] initWithString:compileCommand];
                 [finalTargetCmd replaceCharactersInRange:firstMatch.range withString:@"-c ${FILEPATH}"];
                 [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"."] withString:@"${FILENAME}." options:0 range:NSMakeRange(0, finalTargetCmd.length)];
+                [finalTargetCmd replaceOccurrencesOfString:[fileName stringByAppendingString:@"~"] withString:@"${FILENAME}~" options:0 range:NSMakeRange(0, finalTargetCmd.length)];
                 
                 NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@/objc-build.sh",getConfigPath(),configName];
                 BOOL writeResult = [finalTargetCmd writeToFile:scriptFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
