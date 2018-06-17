@@ -39,6 +39,20 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
     NSString *currentConfig = getCurrentConfig();
     NSString *scriptFilePath = [NSString stringWithFormat:@"%@/%@/%@",getConfigPath(),currentConfig,scriptFileName];
     NSString *compileCommand = [[NSString alloc] initWithContentsOfFile:scriptFilePath encoding:NSUTF8StringEncoding error:nil];
+    if (compileCommand.length == 0)
+    {
+        if (isXib)
+        {
+            print("Ignore compile XIB [%s%s%s] because config not found\n",KGRN,fileName.UTF8String,kRS);
+        }
+        else
+        {
+            print("Ignore compile [%s%s%s] because config not found\n",KGRN,fileName.UTF8String,kRS);
+        }
+        
+        return YES;
+    }
+    
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileName withString:fileName];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileListDir withString:getListFileDir()];
@@ -68,22 +82,30 @@ BOOL reBuildBinary()
 {
     NSString *currentConfig = getCurrentConfig();
     
-    print("Rebuilding...\n");
     NSString *rebuildScriptFilePath = [NSString stringWithFormat:@"%@/%@/rebuild.sh",getConfigPath(),currentConfig];
     NSString *rebuildCommand = [[NSString alloc] initWithContentsOfFile:rebuildScriptFilePath encoding:NSUTF8StringEncoding error:nil];
+    if (rebuildCommand.length == 0)
+    {
+        print("%sLinking failed cause linking config error, Please re-config and try again%s\n",kRED,kRS);
+        return NO;
+    }
     
+    print("Linking...\n");
     NSString *resultRebuild = GetSystemCall(rebuildCommand);
-    
     if (resultRebuild.length != 0)
     {
         print("Rebuild failed with error: \n%s%s%s\n",kRED,resultRebuild.UTF8String,kRS);
         return NO;
     }
     
-    print("Resigning...\n");
     NSString *resignScriptFilePath = [NSString stringWithFormat:@"%@/%@/resign.sh",getConfigPath(),currentConfig];
     NSString *resignCommand = [[NSString alloc] initWithContentsOfFile:resignScriptFilePath encoding:NSUTF8StringEncoding error:nil];
-    
+    if (resignCommand.length == 0)
+    {
+        print("%sResign failed cause resign config error, Please re-config and try again%s\n",kRED,kRS);
+        return NO;
+    }
+    print("Resigning...\n");
     NSString *resultResign = GetSystemCall(resignCommand);
     if (resultResign.length != 0 && ![resultResign containsString:@"replacing existing signature"])
     {
@@ -138,7 +160,8 @@ void compileAllModifiedFile()
     BOOL result = reBuildBinary();
     if (result)
     {
-        print("Done\n");
+        system("say done");
+        print("Done. Please focus your project on xCode app and using Run without build(⌃⌘R) to run\n");
     }
 }
 

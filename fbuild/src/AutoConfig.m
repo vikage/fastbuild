@@ -264,7 +264,7 @@ void getLinkingConfigFromLogContent(NSString *logContent, NSString *configName)
                 
                 if (writeResult)
                 {
-                    print("%sWritten resign build config%s\n",KGRN,kRS);
+                    print("%sWritten resign config%s\n",KGRN,kRS);
                 }
             }
             
@@ -273,7 +273,7 @@ void getLinkingConfigFromLogContent(NSString *logContent, NSString *configName)
             
             if (writeResult)
             {
-                print("%sWritten relink build config%s\n",KGRN,kRS);
+                print("%sWritten linking config%s\n",KGRN,kRS);
             }
         }
     }
