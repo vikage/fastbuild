@@ -35,7 +35,7 @@ NSString *getListFileDir()
 
 NSArray *getListFileModified()
 {
-    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^.M' | cut -c4- | grep -E \".m$|.m\\\"$|.swift$|.swift\\\"$|.xib\"",currentDIR];
+    NSString *commandGetListFileModify = [NSString stringWithFormat:@"cd %@;git status -s | grep '^.M' | cut -c4- | grep -E \".m$|.m\\\"$|.swift$|.swift\\\"$|.xib\" | grep -v '\\->'",currentDIR];
     NSString *resultListFileModify = GetSystemCall(commandGetListFileModify);
     resultListFileModify = [resultListFileModify stringByReplacingOccurrencesOfString:@"\"" withString:@""];
     
@@ -46,6 +46,7 @@ void writeListFileSwift()
 {
     NSString *listFile = getAllFileSourceSwift();
     NSString *listFileSwiftWritePath = getListFileDir();
+    listFile = [listFile lowercaseString];
     BOOL writeResult = [listFile writeToFile:listFileSwiftWritePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
     if (writeResult)
     {

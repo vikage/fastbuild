@@ -54,7 +54,7 @@ BOOL compileFile(NSString *filePath,NSString *fileName)
     }
     
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileName withString:fileName];
-    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:filePath];
+    compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFilePath withString:[filePath lowercaseString]];
     compileCommand = [compileCommand stringByReplacingOccurrencesOfString:kFileListDir withString:getListFileDir()];
     NSString *compileResult = GetSystemCall(compileCommand);
     
